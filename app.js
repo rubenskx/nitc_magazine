@@ -20,7 +20,6 @@ var pool = mysql.createPool({
   user: "root",
   password: "",
   database: "magazine",
-  port:8111,
 });
 
 app.use(
@@ -40,13 +39,16 @@ app.use((req, res, next) => {
 
 app.get("/article", async (req, res) => {
   pool.getConnection(function (err, connection) {
-    connection.query(`SELECT * from article`, async (err, articles) => {
-      connection.release();
-      if (err) console.log(err);
-      else {
-        res.render('routes/article', { articles })
+    connection.query(
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          res.render("routes/article", { articles });
+        }
       }
-    });
+    );
   });
 });
 
