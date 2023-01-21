@@ -20,7 +20,7 @@ var pool = mysql.createPool({
   user: "root",
   password: "",
   database: "magazine",
-  multipleStatements: true,
+  port:8111,
 });
 
 app.use(
@@ -50,6 +50,24 @@ app.get("/article", async (req, res) => {
     });
   });
 });
+
+
+
+
+app.get("/article/create",(req,res)=>{
+
+  res.render('routes/article_create');
+
+})
+
+
+
+
+
+
+
+
+
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
