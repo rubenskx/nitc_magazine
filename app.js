@@ -96,6 +96,21 @@ app.get('/article/:id/show', async(req,res)=> {
           });
 })
 
+app.post("/article/:id/comment", async (req, res) => {
+
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0)`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          res.redirect("/article");
+        }
+      }
+    );
+  });
+});
 
 
 
