@@ -3,10 +3,12 @@ const app = express();
 const path = require("path");
 const mysql = require("mysql");
 const session = require("express-session");
+const ejsMate = require("ejs-mate");
 const flash = require("connect-flash");
 
 const { allowedNodeEnvironmentFlags } = require("process");
 
+app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
 app.use(express.urlencoded({ extended: true }));
@@ -43,6 +45,7 @@ app.get("/article", async (req, res) => {
       if (err) console.log(err);
       else {
         console.log(data);
+        res.render('routes/article', { data })
       }
     });
   });
