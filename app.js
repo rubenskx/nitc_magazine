@@ -31,12 +31,16 @@ app.use(
   })
 );
 
+
 app.use((req, res, next) => {
   if (req.session) res.locals.currentUser = req.session.userid;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
 });
+
+
+
 
 app.get("/article", async (req, res) => {
   pool.getConnection(function (err, connection) {
@@ -62,6 +66,7 @@ app.get("/article/create",(req,res)=>{
 
 })
 
+
 app.post('/article/create', async (req, res) => {
   
   let mm = new Date().toISOString().slice(0,10).replace('T',' ');
@@ -78,6 +83,38 @@ app.post('/article/create', async (req, res) => {
   });
  
 });
+
+
+app.get('/article/edit/:id', async (req,res)=>{
+  const {id}=req.params;
+  pool.getConnection(function (err, connection) {
+    connection.query(`Select * from article where article_id=${id}`, async (err, article) => {
+      connection.release();
+      if (err) console.log(err);
+      else {
+         res.render('route/article_edit',article)
+      }
+    });
+  });
+
+
+})
+
+app.post('/article/edit/:id',async (req, res) => {
+  const {id}=req.params;
+  let {articleAuthor,articleContent,articleHeading}=req.body;
+  pool.getConnection(function (err, connection) {
+    connection.query(`UPDATE article SET author_name="${articleAuthor}",title="${articleHeading}",content="${articleContent}" WHERE article_id=${id}`, async (err, article) => {
+      connection.release();
+      if (err) console.log(err);
+      else {
+        res.redirect('/article')
+      }
+    });
+  });
+});
+
+
 
 
 
