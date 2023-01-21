@@ -40,12 +40,11 @@ app.use((req, res, next) => {
 
 app.get("/article", async (req, res) => {
   pool.getConnection(function (err, connection) {
-    connection.query(`SELECT * from article`, async (err, data) => {
+    connection.query(`SELECT * from article`, async (err, articles) => {
       connection.release();
       if (err) console.log(err);
       else {
-        console.log(data);
-        res.render('routes/article', { data })
+        res.render('routes/article', { articles })
       }
     });
   });
