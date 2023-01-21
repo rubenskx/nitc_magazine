@@ -61,6 +61,24 @@ app.get("/article/create",(req,res)=>{
 
 })
 
+app.post('/article/create', async (req, res) => {
+  console.log(req.body);
+  let dd = new Date().getDate();
+  let mm = new Date().toISOString().slice(0,10).replace('T',' ');
+  let yyyy=new Date().getFullYear();
+  console.log(`${mm}`)
+  pool.getConnection(function (err, connection) {
+    connection.query(`INSERT INTO article(content,upload_date,author,status,avg_rating) VALUES ("${req.body.articleContent}","${mm}","Zorozephyr","unrated",0)`, async (err, articles) => {
+      connection.release();
+      if (err) console.log(err);
+      else {
+         res.redirect('/article')
+      }
+    });
+  });
+ 
+});
+
 
 
 
