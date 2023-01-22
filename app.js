@@ -88,7 +88,7 @@ app.get('/article/:id/show', async(req,res)=> {
           const { id }  = req.params;
           pool.getConnection(function (err, connection) {
             connection.query(
-              `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article where article_id=${id}`,
+              `SELECT * from article where article_id=${id}`,
               async (err, data) => {
                 connection.release();
                 if (err) console.log(err);
@@ -100,9 +100,10 @@ app.get('/article/:id/show', async(req,res)=> {
             );
           });
 })
+
 app.get('/article/edit/:id', async (req,res)=>{
   const {id}=req.params;
-  
+
   pool.getConnection(function (err, connection) {
     connection.query(`Select * from article where article_id=${id}`, async (err, article) => {
       connection.release();
@@ -135,7 +136,6 @@ app.post('/article/edit/:id',async (req, res) => {
 
 app.post('/article/delete/:id',async (req, res) => {
   const {id}=req.params;
-  let {articleAuthor,articleContent,articleHeading}=req.body;
   pool.getConnection(function (err, connection) {
     connection.query(`DELETE FROM article  WHERE article_id=${id}`, async (err, article) => {
       connection.release();
@@ -151,15 +151,16 @@ app.post('/article/delete/:id',async (req, res) => {
 
 
 app.post("/article/:id/comment", async (req, res) => {
-
+  const { id } = req.params;
+  const date  = new Date().toISOString().slice(0,10).replace('T',' ');
   pool.getConnection(function (err, connection) {
     connection.query(
-      `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0)`,
+      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, 1)`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
         else {
-          res.redirect("/article");
+          res.redirect(`/article/${id}/show`);
         }
       }
     );
