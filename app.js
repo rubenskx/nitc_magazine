@@ -101,7 +101,7 @@ app.get('/article/:id/show', async(req,res)=> {
           });
 })
 
-app.get('/article/edit/:id', async (req,res)=>{
+app.get('/article/:id/edit', async (req,res)=>{
   const {id}=req.params;
 
   pool.getConnection(function (err, connection) {
@@ -110,7 +110,7 @@ app.get('/article/edit/:id', async (req,res)=>{
       if (err) console.log(err);
       else {
           
-         res.render('./routes/article_edit.ejs',{article:article[0]})
+         res.render('routes/article_edit.ejs',{article:article[0]})
       }
     });
   });
@@ -118,7 +118,7 @@ app.get('/article/edit/:id', async (req,res)=>{
 
 })
 
-app.post('/article/edit/:id',async (req, res) => {
+app.post('/article/:id/edit',async (req, res) => {
   const {id}=req.params;
   let {articleAuthor,articleContent,articleHeading}=req.body;
   pool.getConnection(function (err, connection) {
@@ -134,7 +134,7 @@ app.post('/article/edit/:id',async (req, res) => {
 
 
 
-app.post('/article/delete/:id',async (req, res) => {
+app.post('/article/:id/delete',async (req, res) => {
   const {id}=req.params;
   pool.getConnection(function (err, connection) {
     connection.query(`DELETE FROM article  WHERE article_id=${id}`, async (err, article) => {
