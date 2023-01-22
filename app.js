@@ -7,6 +7,7 @@ const ejsMate = require("ejs-mate");
 const flash = require("connect-flash");
 const methodOverride = require("method-override");
 const { allowedNodeEnvironmentFlags } = require("process");
+const bcrypt=require('bcrypt');
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -21,7 +22,8 @@ var pool = mysql.createPool({
   user: "root",
   password: "",
   database: "magazine",
-  multipleStatements: "true" //this is required for querying multiple statements in mysql
+  multipleStatements: "true" ,//this is required for querying multiple statements in mysql
+  port:8111
 });
 
 app.use(
@@ -178,6 +180,30 @@ app.put("/article/:id/comment/:cid", async(req,res)=> {
         }
       );
     });
+})
+
+app.get('/reviewer/create', (req, res) => {
+
+    res.render('routes/reviewer_create');
+  
+});
+
+app.post('/reviewer/create',async (req ,res)=>{
+  const {rName,rUsername,rPassword,rDob}=req.body;
+  const hash=await bcrypt.hash(rPassword,12)
+  console.log(hash);
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `INSERT INTO reviewer(username,login_password,name,dob) VALUES ("${rUsername}","${hash}","${rName}","${rDob}")`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          res.redirect("/article");
+        }
+      }
+    );
+  });
 })
 
 app.listen(3000, () => {
