@@ -81,7 +81,7 @@ app.get("/article/:id/show", async (req, res) => {
   const { id } = req.params;
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT * from article where article_id=${id}; SELECT * from comments where reviewer_id=1 AND article_id=${id} LIMIT 1`,
+      `SELECT * from article where article_id=${id}; SELECT * from comments where reviewer_id=2 AND article_id=${id} LIMIT 1`,
       async (err, data) => {
         connection.release();
         if (err) console.log(err);
@@ -152,7 +152,7 @@ app.post("/article/:id/comment", async (req, res) => {
   const date = new Date().toISOString().slice(0, 10).replace("T", " ");
   pool.getConnection(function (err, connection) {
     connection.query(
-      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, 1)`,
+      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, 2)`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
