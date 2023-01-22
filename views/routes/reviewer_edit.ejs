@@ -1,0 +1,23 @@
+<% layout('layout/boilerplate') %>
+<form form action="/reviewer/<%=rev.reviewer_id%>/edit" class="hiddenForm" method="POST" >
+    
+    <div class="mb-3">
+        <label for="rName" class="form-label">Name of Reviewer</label>
+        <input name="rName" type="text" class="form-control"  value="<%=rev.name %>" >
+      </div>
+    <div class="mb-3">
+      <label for="rUsername" class="form-label">Username</label>
+      <input name="rUsername" type="text" class="form-control"  value="<%=rev.username%>" >
+    </div>
+    <div class="mb-3">
+        <label for="rPassword" class="form-label">Password</label>
+        <input name="rPassword" type="password" class="form-control"  >
+      </div>
+
+    <div class="mb-3">
+        <label for="rDob" class="form-label">Date Of Birth</label>
+        <input name="rDob" type="date" class="form-control" id="" value="<%=rev.dob%>" >
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>

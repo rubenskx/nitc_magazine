@@ -8,6 +8,7 @@ const flash = require("connect-flash");
 const methodOverride = require("method-override");
 const { allowedNodeEnvironmentFlags } = require("process");
 const bcrypt=require('bcrypt');
+const jquery=require('jquery');
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -199,12 +200,81 @@ app.post('/reviewer/create',async (req ,res)=>{
         connection.release();
         if (err) console.log(err);
         else {
-          res.redirect("/article");
+          res.redirect("/reviewer");
         }
       }
     );
   });
 })
+
+app.get('/reviewer',async (req,res)=>{
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `SELECT * from reviewer`,
+      async (err, reviewers) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          console.log(reviewers);
+          res.render("routes/reviewer", { reviewers } );
+        }
+      }
+    );
+  });
+
+})
+
+app.get('/reviewer/:id/edit',async (req,res)=>{
+  const {id}=req.params;
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `SELECT * from reviewer WHERE reviewer_id=${id}`,
+      async (err, reviewers) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          
+          res.render("routes/reviewer_edit", { rev:reviewers[0] } );
+        }
+      }
+    );
+  });
+
+})
+
+app.post('/reviewer/:id/edit',async (req, res) => {
+  const {id}=req.params;
+  const {rName,rUsername,rDob,rPassword}=req.body;
+  const hash=await bcrypt.hash(rPassword,12);
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `UPDATE reviewer SET username="${rUsername}",login_password="${hash}",dob="${rDob}",name="${rName}" WHERE reviewer_id=${id}`,
+      async (err, reviewers) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          res.redirect("/reviewer");
+        }
+      }
+    );
+  });
+});
+
+app.post('/reviewer/:id/delete',async (req, res) => {
+  const {id}=req.params;
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `Delete FROM reviewer  WHERE reviewer_id=${id}`,
+      async (err, reviewers) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          res.redirect("/reviewer");
+        }
+      }
+    );
+  });
+});
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
