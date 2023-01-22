@@ -24,7 +24,6 @@ var pool = mysql.createPool({
   password: "",
   database: "magazine",
   multipleStatements: "true" ,//this is required for querying multiple statements in mysql
-  port:8111
 });
 
 app.use(
@@ -167,15 +166,16 @@ app.post("/article/:id/comment", async (req, res) => {
 
 
 app.put("/article/:id/comment/:cid", async(req,res)=> {
-    const { id } = req.params;
+    const { id , cid } = req.params;
     const { content, rating} = req.body;
     pool.getConnection(function (err, connection) {
       connection.query(
-        `UPDATE comments SET content="${content}",rating=${rating} WHERE comment_id=${id}`,
+        `UPDATE comments SET content="${content}",rating=${rating} WHERE comment_id=${cid}`,
         async (err, data) => {
           connection.release();
           if (err) console.log(err);
           else {
+            console.log(rating);
             res.redirect(`/article/${id}/show`);
           }
         }
@@ -275,6 +275,22 @@ app.post('/reviewer/:id/delete',async (req, res) => {
     );
   });
 });
+
+app.get('/select', async(req,res)=> {
+    pool.getConnection(function(err, connection) {
+        connection.query(
+          `SELECT *, AVG(comments.rating) AS avg_rating FROM article, comments WHERE status="unrated" and comments.article_id=article.article_id GROUP BY(article.article_id)`,
+          async (err, articles) => {
+            connection.release();
+            if (err) console.log(err);
+            else {
+              console.log(articles);
+              res.render("routes/select" , { articles });
+            }
+          }
+        );
+    })
+})
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
