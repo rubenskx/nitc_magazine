@@ -5,12 +5,13 @@ const mysql = require("mysql");
 const session = require("express-session");
 const ejsMate = require("ejs-mate");
 const flash = require("connect-flash");
-
+const methodOverride = require("method-override");
 const { allowedNodeEnvironmentFlags } = require("process");
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
+app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(flash());
@@ -20,6 +21,7 @@ var pool = mysql.createPool({
   user: "root",
   password: "",
   database: "magazine",
+  multipleStatements: "true" //this is required for querying multiple statements in mysql
 });
 
 app.use(
@@ -30,16 +32,12 @@ app.use(
   })
 );
 
-
 app.use((req, res, next) => {
   if (req.session) res.locals.currentUser = req.session.userid;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
 });
-
-
-
 
 app.get("/article", async (req, res) => {
   pool.getConnection(function (err, connection) {
@@ -56,103 +54,100 @@ app.get("/article", async (req, res) => {
   });
 });
 
-
-
-
-app.get("/article/create",(req,res)=>{
-
-  res.render('routes/article_create');
-
-})
-
-
-app.post('/article/create', async (req, res) => {
-  
-  let mm = new Date().toISOString().slice(0,10).replace('T',' ');
-  
-
-  pool.getConnection(function (err, connection) {
-    connection.query(`INSERT INTO article(content,upload_date,author_name,title,status,avg_rating) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0)`, async (err, articles) => {
-      connection.release();
-      if (err) console.log(err);
-      else {
-         res.redirect('/article')
-      }
-    });
-  });
- 
+app.get("/article/create", (req, res) => {
+  res.render("routes/article_create");
 });
 
-
-app.get('/article/:id/show', async(req,res)=> {
-          const { id }  = req.params;
-          pool.getConnection(function (err, connection) {
-            connection.query(
-              `SELECT * from article where article_id=${id}`,
-              async (err, data) => {
-                connection.release();
-                if (err) console.log(err);
-                else {
-                data = data[0];
-                  res.render("routes/article_show", { data });
-                }
-              }
-            );
-          });
-})
-
-app.get('/article/:id/edit', async (req,res)=>{
-  const {id}=req.params;
+app.post("/article/create", async (req, res) => {
+  let mm = new Date().toISOString().slice(0, 10).replace("T", " ");
 
   pool.getConnection(function (err, connection) {
-    connection.query(`Select * from article where article_id=${id}`, async (err, article) => {
-      connection.release();
-      if (err) console.log(err);
-      else {
-          
-         res.render('routes/article_edit.ejs',{article:article[0]})
+    connection.query(
+      `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0)`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          res.redirect("/article");
+        }
       }
-    });
-  });
-
-
-})
-
-app.post('/article/:id/edit',async (req, res) => {
-  const {id}=req.params;
-  let {articleAuthor,articleContent,articleHeading}=req.body;
-  pool.getConnection(function (err, connection) {
-    connection.query(`UPDATE article SET author_name="${articleAuthor}",title="${articleHeading}",content="${articleContent}" WHERE article_id=${id}`, async (err, article) => {
-      connection.release();
-      if (err) console.log(err);
-      else {
-        res.redirect('/article')
-      }
-    });
+    );
   });
 });
 
-
-
-app.post('/article/:id/delete',async (req, res) => {
-  const {id}=req.params;
+app.get("/article/:id/show", async (req, res) => {
+  const { id } = req.params;
   pool.getConnection(function (err, connection) {
-    connection.query(`DELETE FROM article  WHERE article_id=${id}`, async (err, article) => {
-      connection.release();
-      if (err) console.log(err);
-      else {
-        res.redirect('/article')
+    connection.query(
+      `SELECT * from article where article_id=${id}; SELECT * from comments where reviewer_id=1 AND article_id=${id} LIMIT 1`,
+      async (err, data) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          //console.log(data);
+          comment = data[1][0];
+          data = data[0][0];
+          console.log(data,comment);
+          res.render("routes/article_show", { data, comment});
+        }
       }
-    });
+    );
   });
 });
 
+app.get("/article/:id/edit", async (req, res) => {
+  const { id } = req.params;
 
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `Select * from article where article_id=${id}`,
+      async (err, article) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          res.render("routes/article_edit.ejs", { article: article[0] });
+        }
+      }
+    );
+  });
+});
 
+app.post("/article/:id/edit", async (req, res) => {
+  const { id } = req.params;
+  let { articleAuthor, articleContent, articleHeading } = req.body;
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `UPDATE article SET author_name="${articleAuthor}",title="${articleHeading}",content="${articleContent}" WHERE article_id=${id}`,
+      async (err, article) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          res.redirect("/article");
+        }
+      }
+    );
+  });
+});
+
+app.post("/article/:id/delete", async (req, res) => {
+  const { id } = req.params;
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `DELETE FROM article  WHERE article_id=${id}`,
+      async (err, article) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          res.redirect("/article");
+        }
+      }
+    );
+  });
+});
 
 app.post("/article/:id/comment", async (req, res) => {
   const { id } = req.params;
-  const date  = new Date().toISOString().slice(0,10).replace('T',' ');
+  const date = new Date().toISOString().slice(0, 10).replace("T", " ");
   pool.getConnection(function (err, connection) {
     connection.query(
       `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, 1)`,
@@ -168,9 +163,22 @@ app.post("/article/:id/comment", async (req, res) => {
 });
 
 
-
-
-
+app.put("/article/:id/comment/:cid", async(req,res)=> {
+    const { id } = req.params;
+    const { content, rating} = req.body;
+    pool.getConnection(function (err, connection) {
+      connection.query(
+        `UPDATE comments SET content="${content}",rating=${rating} WHERE comment_id=${id}`,
+        async (err, data) => {
+          connection.release();
+          if (err) console.log(err);
+          else {
+            res.redirect(`/article/${id}/show`);
+          }
+        }
+      );
+    });
+})
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
