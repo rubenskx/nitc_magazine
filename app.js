@@ -37,6 +37,7 @@ app.use(
 
 app.use((req, res, next) => {
   if (req.session.username) res.locals.username = req.session.username;
+  if (req.session.type) res.locals.admin = req.session.type; 
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
@@ -82,9 +83,14 @@ app.post("/login", async (req, res) => {
               req.session.username = data[0].username;
               req.session.userid = data[0].reviewer_id;
               req.session.type = data[0].post;
+              req.flash("success", `Welcome back ${data[0].username}!`);
               res.redirect("/article");
+            } else {
+              req.flash("error", `Incorrect name or password!`);
+              res.redirect("/login");
             }
           } else {
+            req.flash("error", `Incorrect name or password!`);
             res.redirect("/login");
           }
         }
@@ -392,7 +398,7 @@ app.get(
   async (req, res) => {
     pool.getConnection(function (err, connection) {
       connection.query(
-        `SELECT *, AVG(comments.rating) AS avg_rating FROM article, comments WHERE status="unrated" and comments.article_id=article.article_id GROUP BY(article.article_id)`,
+        `SELECT * FROM article WHERE status="unrated"`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);
@@ -405,6 +411,26 @@ app.get(
     });
   }
 );
+
+app.get("/select/:id/show", requireLoginReviewer, async (req, res) => {
+  const { id } = req.params;
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `SELECT * from article where article_id=${id}; SELECT *, reviewer.username from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id`,
+      async (err, data) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          //console.log(data);
+          comments = data[1];
+          data = data[0][0];
+          console.log(data, comments);
+          res.render("routes/admin_show", { data, comments });
+        }
+      }
+    );
+  });
+});
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");

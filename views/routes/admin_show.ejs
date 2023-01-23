@@ -1,0 +1,28 @@
+<% layout('layout/boilerplate') %>
+<link rel="stylesheet" href="/stylesheets/stars.css" />
+<h1 style="text-align: center"><%= data.title %></h1>
+<p style="text-align: right">Written By -<b><%= data.author_name %></b></p>
+<hr />
+<p class="lead"><%= data.content %></p>
+<hr />
+<h2>Comments:</h2>
+<% if (comments.length === 0) {%>
+        <p style="color:red;">There are no comments for this post!</p>
+    <% } else { %>  
+<% for (comment of comments) {%>
+    <div class="card mb-3">
+        <div class="card-body">
+            <label class="form-label" for="content"><b><%= comment.name %> </b> says</label>
+            <textarea
+            class="form-control"
+            name="content"
+            id="body"
+            cols="30"
+            rows="3"
+            ><%= comment.content  %></textarea>
+        <p class="starability-result" data-rating="<%= comment.rating %>">
+        </p>
+        </div>
+  </div>
+<% } %>  
+<% } %> 
