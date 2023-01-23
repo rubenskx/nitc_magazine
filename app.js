@@ -24,6 +24,7 @@ var pool = mysql.createPool({
   password: "",
   database: "magazine",
   multipleStatements: "true" ,//this is required for querying multiple statements in mysql
+  port:8111
 });
 
 app.use(
@@ -321,7 +322,33 @@ app.post("/login", async (req, res) => {
       });
 });
 
-app.post
+app.get('/admin',(req,res)=>{
+  res.render("routes/admin_login");
+})
+
+app.post('/admin',async (req, res) => {
+  const { password , username } = req.body;
+      pool.getConnection(function (err, connection) {
+        connection.query(
+          `SELECT * FROM admin WHERE username="${username}";`,
+          async (err, data) => {
+            connection.release();
+            if (err) console.log(err);
+            else {
+              if(data.length > 0){
+                  console.log(password, data[0].login_password);
+                  const match = await bcrypt.compare(password, data[0].login_password);
+                  console.log(match);
+                  if(match){
+                    console.log("this is correct!");
+                  }
+              }
+              res.redirect("/article");
+            }
+          }
+        );
+      });
+});
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
 });
