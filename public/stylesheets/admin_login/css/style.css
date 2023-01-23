@@ -7,6 +7,16 @@ body {
 	margin: 0;
 	color: #666;
 }
+/* .margin_left {
+		margin-left: 50%;
+	} */
+
+	.main{
+	width: 100vw;
+	display: flex;
+	justify-content: center;
+	padding-bottom: 17.5%;
+}
 
 /* Typography */
 h1#title {
@@ -76,12 +86,14 @@ p.small {
 	border-radius: 5px;
 	box-shadow: 0 5px 50px rgba(0,0,0,0.4);
 	text-align: center;
+	width:50%;
 }
 
 .login-box .box-header {
 	background-color: #665851;
 	margin-top: 0;
 	border-radius: 5px 5px 0 0;
+	width: 100% !important;
 }
 
 .login-box label {
@@ -100,6 +112,7 @@ p.small {
 	border-radius: 2px;
 	font-size: .9em;
 	color: #888;
+	width:80%;
 }
 
 .login-box input:focus {
@@ -122,6 +135,7 @@ p.small {
 	background-color: #665851;
 	cursor:pointer;
 	outline: none;
+	width:50%;
 }
 
 .login-box button:hover {
