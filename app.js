@@ -191,7 +191,7 @@ app.get('/reviewer/create', (req, res) => {
 
 app.post('/reviewer/create',async (req ,res)=>{
   const {rName,rUsername,rPassword,rDob}=req.body;
-  const hash=await bcrypt.hash(rPassword,12)
+  const hash=await bcrypt.hash(rPassword,10)
   console.log(hash);
   pool.getConnection(function (err, connection) {
     connection.query(
@@ -292,6 +292,36 @@ app.get('/select', async(req,res)=> {
     })
 })
 
+
+app.get("/login", async(req,res)=> {
+    res.render('routes/login');
+})
+
+app.post("/login", async (req, res) => {
+    const { password , username } = req.body;
+      pool.getConnection(function (err, connection) {
+        connection.query(
+          `SELECT * FROM reviewer WHERE username="${username}";`,
+          async (err, data) => {
+            connection.release();
+            if (err) console.log(err);
+            else {
+              if(data.length > 0){
+                  console.log(password, data[0].login_password);
+                  const match = await bcrypt.compare(password, data[0].login_password);
+                  console.log(match);
+                  if(match){
+                    console.log("this is correct!");
+                  }
+              }
+              res.redirect("/login");
+            }
+          }
+        );
+      });
+});
+
+app.post
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
 });

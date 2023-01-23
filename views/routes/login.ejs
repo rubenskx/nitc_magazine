@@ -1,13 +1,14 @@
+<% layout('layout/boilerplate') %>
 <div class="container d-flex justify-content-center align-items-center mt-5">
-  <div class="row mt-2">
+  <div class="row mt-2 mb-5">
   <div class="col-sm-6">
       <img class="img-fluid" src="https://images.pexels.com/photos/3585089/pexels-photo-3585089.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="">  
   </div>
      <div class="col-sm-6">
       <div class="card h-100">
           <div class="card-body">
-             <form action="/register" method="POST">
-                    <h5 class="text-center mb-5">Create An Account</h5>
+             <form action="/login" method="POST" class="mt-5">
+                    <h5 class="text-center mb-5">Login</h5>
                     <div class="mb-3">
                       <label class="form-label" for="username">Username</label>
                       <input
@@ -18,11 +19,6 @@
                       />
                       </div>
                     <div class="mb-3">
-                      <label class="form-label" for="email">Email</label>
-                      <input class="form-control" type="email" id="email" name="email" required />
-                      <div class="valid-feedback">Looks good!</div>
-                    </div>
-                    <div class="mb-3">
                       <label class="form-label" for="password">Password</label>
                       <input
                         class="form-control"
@@ -32,7 +28,9 @@
                         required
                       />
                       </div>
-                    <button class="btn btn-success btn-block">Register</button>
+                      <div class="d-grid gap-2">
+                          <button class="btn btn-success">Register</button>
+                      </div>
                   </form>
             </div>
         </div>
