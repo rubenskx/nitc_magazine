@@ -6,7 +6,7 @@ const session = require("express-session");
 const ejsMate = require("ejs-mate");
 const flash = require("connect-flash");
 const methodOverride = require("method-override");
-const { allowedNodeEnvironmentFlags } = require("process");
+const { allowedNodeEnvironmentFlags, emitWarning } = require("process");
 const bcrypt=require('bcrypt');
 const jquery=require('jquery');
 
@@ -35,11 +35,55 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  if (req.session) res.locals.currentUser = req.session.userid;
+  if(app.locals.username) res.locals.username = app.locals.username;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
 });
+
+app.get("/login", async (req, res) => {
+  res.render("routes/login");
+});
+
+app.post("/logout", async(req,res) => {
+  delete app.locals.username;
+  delete app.locals.reviewer;
+  res.redirect("/login");
+})
+
+app.post("/login", async (req, res) => {
+  const { password, username } = req.body;
+    pool.getConnection(function (err, connection) {
+      connection.query(
+        `SELECT * FROM reviewer WHERE username="${username}";`,
+        async (err, data) => {
+          connection.release();
+          if (err) throw Error;
+          else {
+            if (data.length > 0) {
+              console.log(password, data[0].login_password);
+              const match = await bcrypt.compare(
+                password,
+                data[0].login_password
+              );
+              console.log(match);
+              if (match) {
+                console.log("this is correct!");
+                app.locals.reviewer = data[0].reviewer_id;
+                app.locals.username = data[0].username;
+                console.log(app.locals.reviewer);
+                res.redirect("/article");
+              } else {
+                res.redirect("/login");
+              }
+            }
+          }
+        }
+      );
+    });
+  
+});
+
 
 app.get("/article", async (req, res) => {
   pool.getConnection(function (err, connection) {
@@ -81,7 +125,7 @@ app.get("/article/:id/show", async (req, res) => {
   const { id } = req.params;
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT * from article where article_id=${id}; SELECT * from comments where reviewer_id=2 AND article_id=${id} LIMIT 1`,
+      `SELECT * from article where article_id=${id}; SELECT * from comments where reviewer_id=${app.locals.reviewer} AND article_id=${id} LIMIT 1`,
       async (err, data) => {
         connection.release();
         if (err) console.log(err);
@@ -89,8 +133,8 @@ app.get("/article/:id/show", async (req, res) => {
           //console.log(data);
           comment = data[1][0];
           data = data[0][0];
-          console.log(data,comment);
-          res.render("routes/article_show", { data, comment});
+          console.log(data, comment);
+          res.render("routes/article_show", { data, comment });
         }
       }
     );
@@ -152,7 +196,7 @@ app.post("/article/:id/comment", async (req, res) => {
   const date = new Date().toISOString().slice(0, 10).replace("T", " ");
   pool.getConnection(function (err, connection) {
     connection.query(
-      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, 2)`,
+      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${app.locals.reviewer})`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
@@ -293,35 +337,8 @@ app.get('/select', async(req,res)=> {
 })
 
 
-app.get("/login", async(req,res)=> {
-    res.render('routes/login');
-})
 
-app.post("/login", async (req, res) => {
-    const { password , username } = req.body;
-      pool.getConnection(function (err, connection) {
-        connection.query(
-          `SELECT * FROM reviewer WHERE username="${username}";`,
-          async (err, data) => {
-            connection.release();
-            if (err) console.log(err);
-            else {
-              if(data.length > 0){
-                  console.log(password, data[0].login_password);
-                  const match = await bcrypt.compare(password, data[0].login_password);
-                  console.log(match);
-                  if(match){
-                    console.log("this is correct!");
-                  }
-              }
-              res.redirect("/login");
-            }
-          }
-        );
-      });
-});
 
-app.post
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
 });
