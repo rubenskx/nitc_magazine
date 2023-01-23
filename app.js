@@ -6,7 +6,7 @@ const session = require("express-session");
 const ejsMate = require("ejs-mate");
 const flash = require("connect-flash");
 const methodOverride = require("method-override");
-const { allowedNodeEnvironmentFlags } = require("process");
+const { allowedNodeEnvironmentFlags, emitWarning } = require("process");
 const bcrypt=require('bcrypt');
 const jquery=require('jquery');
 
@@ -36,7 +36,7 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  if (req.session) res.locals.currentUser = req.session.userid;
+  if(app.locals.username) res.locals.username = app.locals.username;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
@@ -148,8 +148,8 @@ app.get("/article/:id/show", requireLoginReviewer,async (req, res) => {
           //console.log(data);
           comment = data[1][0];
           data = data[0][0];
-          console.log(data,comment);
-          res.render("routes/article_show", { data, comment});
+          console.log(data, comment);
+          res.render("routes/article_show", { data, comment });
         }
       }
     );
@@ -211,6 +211,7 @@ app.post("/article/:id/comment",requireLoginReviewer, async (req, res) => {
   const date = new Date().toISOString().slice(0, 10).replace("T", " ");
   pool.getConnection(function (err, connection) {
     connection.query(
+
       `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid})`,
       async (err, articles) => {
         connection.release();
