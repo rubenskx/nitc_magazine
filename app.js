@@ -42,7 +42,65 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/article", async (req, res) => {
+const requireLoginReviewer=(req,res,next)=>{
+  if(!req.session.username){
+      return res.redirect('/login');
+  }
+  next();
+}
+
+const requireLoginAdmin=(req,res,next)=>{
+  if(req.session.type=="admin"){
+      next();
+      
+  }
+  return res.redirect('/login');
+}
+
+app.get("/login", async(req,res)=> {
+  res.render('routes/login');
+})
+
+app.post("/login", async (req, res) => {
+  const { password , username } = req.body;
+    pool.getConnection(function (err, connection) {
+      connection.query(
+        `SELECT * FROM reviewer WHERE username="${username}";`,
+        async (err, data) => {
+          connection.release();
+          if (err) console.log(err);
+          else {
+            if(data.length > 0){
+                console.log(password, data[0].login_password);
+                const match = await bcrypt.compare(password, data[0].login_password);
+                console.log(match);
+                if(match){
+                  console.log("this is correct!");
+                  req.session.username=data[0].username;
+                  req.session.userid=data[0].reviewer_id;
+                  req.session.type=data[0].post;
+                  res.redirect('/article')
+                }
+            }
+            else{
+              res.redirect("/login");
+            }
+            
+          }
+        }
+      );
+    });
+});
+
+app.post('/logout', (req, res) => {
+  req.session.user_id=null;
+  req.session.username=null;
+  req.session.type=null;
+  req.session.destroy();
+  res.redirect('/login');
+});
+
+app.get("/article",requireLoginReviewer ,async (req, res) => {
   pool.getConnection(function (err, connection) {
     connection.query(
       `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article`,
@@ -57,11 +115,11 @@ app.get("/article", async (req, res) => {
   });
 });
 
-app.get("/article/create", (req, res) => {
+app.get("/article/create",requireLoginReviewer,requireLoginAdmin, (req, res) => {
   res.render("routes/article_create");
 });
 
-app.post("/article/create", async (req, res) => {
+app.post("/article/create",requireLoginReviewer,requireLoginAdmin, async (req, res) => {
   let mm = new Date().toISOString().slice(0, 10).replace("T", " ");
 
   pool.getConnection(function (err, connection) {
@@ -78,11 +136,11 @@ app.post("/article/create", async (req, res) => {
   });
 });
 
-app.get("/article/:id/show", async (req, res) => {
+app.get("/article/:id/show", requireLoginReviewer,async (req, res) => {
   const { id } = req.params;
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT * from article where article_id=${id}; SELECT * from comments where reviewer_id=2 AND article_id=${id} LIMIT 1`,
+      `SELECT * from article where article_id=${id}; SELECT * from comments where reviewer_id=${req.session.userid} AND article_id=${id} LIMIT 1`,
       async (err, data) => {
         connection.release();
         if (err) console.log(err);
@@ -98,7 +156,7 @@ app.get("/article/:id/show", async (req, res) => {
   });
 });
 
-app.get("/article/:id/edit", async (req, res) => {
+app.get("/article/:id/edit",requireLoginReviewer,requireLoginAdmin, async (req, res) => {
   const { id } = req.params;
 
   pool.getConnection(function (err, connection) {
@@ -115,7 +173,7 @@ app.get("/article/:id/edit", async (req, res) => {
   });
 });
 
-app.post("/article/:id/edit", async (req, res) => {
+app.post("/article/:id/edit",requireLoginReviewer,requireLoginAdmin, async (req, res) => {
   const { id } = req.params;
   let { articleAuthor, articleContent, articleHeading } = req.body;
   pool.getConnection(function (err, connection) {
@@ -132,7 +190,7 @@ app.post("/article/:id/edit", async (req, res) => {
   });
 });
 
-app.post("/article/:id/delete", async (req, res) => {
+app.post("/article/:id/delete",requireLoginReviewer,requireLoginAdmin, async (req, res) => {
   const { id } = req.params;
   pool.getConnection(function (err, connection) {
     connection.query(
@@ -148,12 +206,12 @@ app.post("/article/:id/delete", async (req, res) => {
   });
 });
 
-app.post("/article/:id/comment", async (req, res) => {
+app.post("/article/:id/comment",requireLoginReviewer, async (req, res) => {
   const { id } = req.params;
   const date = new Date().toISOString().slice(0, 10).replace("T", " ");
   pool.getConnection(function (err, connection) {
     connection.query(
-      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, 2)`,
+      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid})`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
@@ -166,7 +224,7 @@ app.post("/article/:id/comment", async (req, res) => {
 });
 
 
-app.put("/article/:id/comment/:cid", async(req,res)=> {
+app.put("/article/:id/comment/:cid",requireLoginReviewer, async(req,res)=> {
     const { id , cid } = req.params;
     const { content, rating} = req.body;
     pool.getConnection(function (err, connection) {
@@ -184,19 +242,19 @@ app.put("/article/:id/comment/:cid", async(req,res)=> {
     });
 })
 
-app.get('/reviewer/create', (req, res) => {
+app.get('/reviewer/create',requireLoginReviewer,requireLoginAdmin, (req, res) => {
 
     res.render('routes/reviewer_create');
   
 });
 
-app.post('/reviewer/create',async (req ,res)=>{
+app.post('/reviewer/create',requireLoginReviewer,requireLoginAdmin,async (req ,res)=>{
   const {rName,rUsername,rPassword,rDob}=req.body;
   const hash=await bcrypt.hash(rPassword,10)
   console.log(hash);
   pool.getConnection(function (err, connection) {
     connection.query(
-      `INSERT INTO reviewer(username,login_password,name,dob) VALUES ("${rUsername}","${hash}","${rName}","${rDob}")`,
+      `INSERT INTO reviewer(username,login_password,name,dob,post) VALUES ("${rUsername}","${hash}","${rName}","${rDob}","reviewer")`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
@@ -208,10 +266,10 @@ app.post('/reviewer/create',async (req ,res)=>{
   });
 })
 
-app.get('/reviewer',async (req,res)=>{
+app.get('/reviewer',requireLoginReviewer,requireLoginAdmin,async (req,res)=>{
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT * from reviewer`,
+      `SELECT * from reviewer where post <> "admin" `,
       async (err, reviewers) => {
         connection.release();
         if (err) console.log(err);
@@ -225,7 +283,7 @@ app.get('/reviewer',async (req,res)=>{
 
 })
 
-app.get('/reviewer/:id/edit',async (req,res)=>{
+app.get('/reviewer/:id/edit',requireLoginReviewer,requireLoginAdmin,async (req,res)=>{
   const {id}=req.params;
   pool.getConnection(function (err, connection) {
     connection.query(
@@ -243,7 +301,7 @@ app.get('/reviewer/:id/edit',async (req,res)=>{
 
 })
 
-app.post('/reviewer/:id/edit',async (req, res) => {
+app.post('/reviewer/:id/edit',requireLoginReviewer,requireLoginAdmin,async (req, res) => {
   const {id}=req.params;
   const {rName,rUsername,rDob,rPassword}=req.body;
   const hash=await bcrypt.hash(rPassword,12);
@@ -261,7 +319,7 @@ app.post('/reviewer/:id/edit',async (req, res) => {
   });
 });
 
-app.post('/reviewer/:id/delete',async (req, res) => {
+app.post('/reviewer/:id/delete',requireLoginReviewer,requireLoginAdmin,async (req, res) => {
   const {id}=req.params;
   pool.getConnection(function (err, connection) {
     connection.query(
@@ -277,7 +335,7 @@ app.post('/reviewer/:id/delete',async (req, res) => {
   });
 });
 
-app.get('/select', async(req,res)=> {
+app.get('/select',requireLoginReviewer,requireLoginAdmin, async(req,res)=> {
     pool.getConnection(function(err, connection) {
         connection.query(
           `SELECT *, AVG(comments.rating) AS avg_rating FROM article, comments WHERE status="unrated" and comments.article_id=article.article_id GROUP BY(article.article_id)`,
@@ -294,61 +352,7 @@ app.get('/select', async(req,res)=> {
 })
 
 
-app.get("/login", async(req,res)=> {
-    res.render('routes/login');
-})
 
-app.post("/login", async (req, res) => {
-    const { password , username } = req.body;
-      pool.getConnection(function (err, connection) {
-        connection.query(
-          `SELECT * FROM reviewer WHERE username="${username}";`,
-          async (err, data) => {
-            connection.release();
-            if (err) console.log(err);
-            else {
-              if(data.length > 0){
-                  console.log(password, data[0].login_password);
-                  const match = await bcrypt.compare(password, data[0].login_password);
-                  console.log(match);
-                  if(match){
-                    console.log("this is correct!");
-                  }
-              }
-              res.redirect("/login");
-            }
-          }
-        );
-      });
-});
-
-app.get('/admin',(req,res)=>{
-  res.render("routes/admin_login");
-})
-
-app.post('/admin',async (req, res) => {
-  const { password , username } = req.body;
-      pool.getConnection(function (err, connection) {
-        connection.query(
-          `SELECT * FROM admin WHERE username="${username}";`,
-          async (err, data) => {
-            connection.release();
-            if (err) console.log(err);
-            else {
-              if(data.length > 0){
-                  console.log(password, data[0].login_password);
-                  const match = await bcrypt.compare(password, data[0].login_password);
-                  console.log(match);
-                  if(match){
-                    console.log("this is correct!");
-                  }
-              }
-              res.redirect("/article");
-            }
-          }
-        );
-      });
-});
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
 });
