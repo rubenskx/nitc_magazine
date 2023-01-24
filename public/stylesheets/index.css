@@ -12,3 +12,8 @@ body {
 .date_text{
     margin-left: 70%;
 }
+
+.logo {
+    height: 42px;
+    padding-right: 20px;
+}

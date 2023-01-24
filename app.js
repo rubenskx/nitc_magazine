@@ -37,7 +37,7 @@ app.use(
 
 app.use((req, res, next) => {
   if (req.session.username) res.locals.username = req.session.username;
-  if (req.session.type) res.locals.admin = req.session.type; 
+  if (req.session.type) res.locals.admin = req.session.type;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
@@ -71,7 +71,7 @@ app.post("/login", async (req, res) => {
         connection.release();
         if (err) console.log(err);
         else {
-          if (data.length > 0) {
+          if (username.includes("@nitc.ac.in") && data.length > 0) {
             console.log(password, data[0].login_password);
             const match = await bcrypt.compare(
               password,
@@ -83,18 +83,21 @@ app.post("/login", async (req, res) => {
               req.session.username = data[0].username;
               req.session.userid = data[0].reviewer_id;
               req.session.type = data[0].post;
-              req.flash("success", `Welcome back ${data[0].username}!`);
-              if(data[0].post === 'admin')
-                res.redirect('/select');
-              else 
-                res.redirect("/article");
+              req.flash("success", `Welcome back ${data[0].name}!`);
+              if (data[0].post === "admin") res.redirect("/select");
+              else res.redirect("/article");
             } else {
               req.flash("error", `Incorrect name or password!`);
               res.redirect("/login");
             }
           } else {
-            req.flash("error", `Incorrect name or password!`);
-            res.redirect("/login");
+            if (data.length === 0) {
+              req.flash("error", `Incorrect name or password!`);
+              res.redirect("/login");
+            } else {
+              req.flash("error", `Please provide a valid NITC email id!`);
+              res.redirect("/login");
+            }
           }
         }
       }
@@ -295,21 +298,26 @@ app.post(
   requireLoginAdmin,
   async (req, res) => {
     const { rName, rUsername, rPassword, rDob } = req.body;
-    const hash = await bcrypt.hash(rPassword, 10);
-    console.log(hash);
-    pool.getConnection(function (err, connection) {
-      connection.query(
-        `INSERT INTO reviewer(username,login_password,name,dob,post) VALUES ("${rUsername}","${hash}","${rName}","${rDob}","reviewer")`,
-        async (err, articles) => {
-          connection.release();
-          if (err) console.log(err);
-          else {
-            req.flash("success", "Created reviewer successfully!");
-            res.redirect("/reviewer");
+    if (rUsername.includes("@nitc.ac.in")) {
+      const hash = await bcrypt.hash(rPassword, 10);
+      console.log(hash);
+      pool.getConnection(function (err, connection) {
+        connection.query(
+          `INSERT INTO reviewer(username,login_password,name,dob,post) VALUES ("${rUsername}","${hash}","${rName}","${rDob}","reviewer")`,
+          async (err, articles) => {
+            connection.release();
+            if (err) console.log(err);
+            else {
+              req.flash("success", "Created reviewer successfully!");
+              res.redirect("/reviewer");
+            }
           }
-        }
-      );
-    });
+        );
+      });
+    } else {
+      req.flash("error", "Please enter a valid NITC email id!");
+      res.redirect("/reviewer/create");
+    }
   }
 );
 
@@ -435,31 +443,30 @@ app.get("/select/:id/show", requireLoginReviewer, async (req, res) => {
           comments = data[1];
           avg = data[2][0];
           data = data[0][0];
-          console.log(data, comments,avg);
-          res.render("routes/admin_show", { data, comments, avg});
+          console.log(data, comments, avg);
+          res.render("routes/admin_show", { data, comments, avg });
         }
       }
     );
   });
 });
 
-app.post("/select/:id", async(req,res)=> {
-    const { id } = req.params;
-        pool.getConnection(function (err, connection) {
-          connection.query(
-            `UPDATE article set status="rated" WHERE article_id=${id};`,
-            async (err, articles) => {
-              connection.release();
-              if (err) console.log(err);
-              else {
-                req.flash("success", "Selected article successfully!");
-                res.redirect("/select");
-              }
-            }
-          );
-        });
-
-})
+app.post("/select/:id", async (req, res) => {
+  const { id } = req.params;
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `UPDATE article set status="rated" WHERE article_id=${id};`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          req.flash("success", "Selected article successfully!");
+          res.redirect("/select");
+        }
+      }
+    );
+  });
+});
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
