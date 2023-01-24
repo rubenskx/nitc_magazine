@@ -251,15 +251,18 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
   const date = new Date().toISOString().slice(0, 10).replace("T", " ");
   pool.getConnection(function (err, connection) {
     connection.query(
-      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid}); UPDATE article SET count=count+1; SELECT count FROM article;`,
+      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid}); UPDATE article SET count=count+1; SELECT * FROM article`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
         else {
-            if(articles[2][0].count > 5){
+            const waitingUpdate = (articles[2][0].count > 5) ? `UPDATE article set status="waiting";` : ``;
+            const conditional = `WHERE article_id=${id}`;
+            const newRating =((articles[2][0].count - 1) * articles[2][0].avg_rating + parseInt(req.body.rating))/(articles[2][0].count);
+              console.log(newRating,articles[2][0].count,articles[2][0].avg_rating,req.body.rating);
               pool.getConnection(function (err, connection) {
                 connection.query(
-                  `UPDATE article set status="waiting";`,
+                  `UPDATE article SET avg_rating=${newRating} ${conditional};${waitingUpdate} ${conditional}`,
                   async (err, data) => {
                     connection.release();
                     if (err) console.log(err);
@@ -268,7 +271,6 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
               });
                 req.flash("success","Updated review successfully!");
                 res.redirect(`/article`);
-        }
       }
     }
     );
@@ -280,12 +282,23 @@ app.put("/article/:id/comment/:cid", requireLoginReviewer, async (req, res) => {
   const { content, rating } = req.body;
   pool.getConnection(function (err, connection) {
     connection.query(
-      `UPDATE comments SET content="${content}",rating=${rating} WHERE comment_id=${cid}`,
-      async (err, data) => {
+      `SELECT rating FROM comments WHERE comment_id=${cid}; UPDATE comments SET content="${content}",rating=${rating} WHERE comment_id=${cid}; SELECT * from article WHERE article_id=${id};`,
+      async (err, articles) => {
         connection.release();
         if (err) console.log(err);
         else {
-          console.log(rating);
+              const conditional = `WHERE article_id=${id}`;
+              const newRating = (articles[2][0].avg_rating*articles[2][0].count  - articles[0][0].rating + parseInt(rating))/articles[2][0].count;
+              console.log(newRating,articles[2][0].count,articles[2][0].avg_rating,parseInt(rating));
+              pool.getConnection(function (err, connection) {
+                connection.query(
+                  `UPDATE article SET avg_rating=${newRating} ${conditional};`,
+                  async (err, data) => {
+                    connection.release();
+                    if (err) console.log(err);
+                  }
+                );
+              });
           req.flash("success", "Updated review successfully!");
           res.redirect(`/article`);
         }
@@ -427,7 +440,7 @@ app.get(
   async (req, res) => {
     pool.getConnection(function (err, connection) {
       connection.query(
-        `SELECT * FROM article WHERE status="waiting"`,
+        `SELECT * FROM article WHERE status="waiting ORDER BY avg_rating DESC"`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);
