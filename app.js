@@ -391,7 +391,10 @@ app.post(
         `UPDATE reviewer SET username="${rUsername}",login_password="${hash}",dob="${rDob}",name="${rName}" WHERE reviewer_id=${id}`,
         async (err, reviewers) => {
           connection.release();
-          if (err) console.log(err);
+          if (err) {
+            req.flash("error","This email already exists, please enter different email")
+            res.redirect("/reviewer/${id}/edit");
+          }
           else {
             req.flash("success", "Updated reviewer details successfully!");
             res.redirect("/reviewer");
