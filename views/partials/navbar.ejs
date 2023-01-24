@@ -8,6 +8,11 @@
       <div class="navbar-nav navstyle">
         <a class="nav-link active" aria-current="page" href="#">Home</a>
         <% if (typeof username!== 'undefined') {%> 
+          <% if ( typeof admin !== 'undefined' && admin === "admin") {%>
+              <a class="nav-link" aria-current="page" href="/reviewer">Reviewers</a>
+              <a class="nav-link" aria-current="page" href="/article/create">Add Article</a>
+              <a class="nav-link" aria-current="page" href="/reviewer/create">Add Reviewer</a>
+            <% } %>  
               <form class="d-flex" action="/logout" method="POST">
                 <button class="btn btn-outline-success" type="submit">Logout</button>
               </form>

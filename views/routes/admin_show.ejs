@@ -24,5 +24,9 @@
         </p>
         </div>
   </div>
-<% } %>  
+<% } %> 
+<p class="ms-auto">Average rating is: <b><%= avg.avg %></b></p>
+        <form class="d-flex" action="/select/<%= data.article_id %>" method="POST">
+            <button class="btn btn-primary" type="submit">Select</button>
+        </form>
 <% } %> 

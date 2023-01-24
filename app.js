@@ -84,7 +84,10 @@ app.post("/login", async (req, res) => {
               req.session.userid = data[0].reviewer_id;
               req.session.type = data[0].post;
               req.flash("success", `Welcome back ${data[0].username}!`);
-              res.redirect("/article");
+              if(data[0].post === 'admin')
+                res.redirect('/select');
+              else 
+                res.redirect("/article");
             } else {
               req.flash("error", `Incorrect name or password!`);
               res.redirect("/login");
@@ -110,7 +113,7 @@ app.post("/logout", (req, res) => {
 app.get("/article", requireLoginReviewer, async (req, res) => {
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article`,
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article where status="unrated"`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
@@ -145,7 +148,7 @@ app.post(
           connection.release();
           if (err) console.log(err);
           else {
-            res.redirect("/article");
+            res.redirect("/select");
           }
         }
       );
@@ -209,7 +212,8 @@ app.post(
           connection.release();
           if (err) console.log(err);
           else {
-            res.redirect("/article");
+            req.flash("success", "Edited article successfully!");
+            res.redirect("/select");
           }
         }
       );
@@ -230,7 +234,8 @@ app.post(
           connection.release();
           if (err) console.log(err);
           else {
-            res.redirect("/article");
+            req.flash("success", "Deleted article successfully!");
+            res.redirect("/select");
           }
         }
       );
@@ -248,7 +253,8 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
         connection.release();
         if (err) console.log(err);
         else {
-          res.redirect(`/article/${id}/show`);
+          req.flash("success", "Added review successfully!");
+          res.redirect(`/article`);
         }
       }
     );
@@ -266,7 +272,8 @@ app.put("/article/:id/comment/:cid", requireLoginReviewer, async (req, res) => {
         if (err) console.log(err);
         else {
           console.log(rating);
-          res.redirect(`/article/${id}/show`);
+          req.flash("success", "Updated review successfully!");
+          res.redirect(`/article`);
         }
       }
     );
@@ -297,6 +304,7 @@ app.post(
           connection.release();
           if (err) console.log(err);
           else {
+            req.flash("success", "Created reviewer successfully!");
             res.redirect("/reviewer");
           }
         }
@@ -362,6 +370,7 @@ app.post(
           connection.release();
           if (err) console.log(err);
           else {
+            req.flash("success", "Updated reviewer details successfully!");
             res.redirect("/reviewer");
           }
         }
@@ -383,6 +392,7 @@ app.post(
           connection.release();
           if (err) console.log(err);
           else {
+            req.flash("success", "Deleted reviewer successfully!");
             res.redirect("/reviewer");
           }
         }
@@ -416,21 +426,40 @@ app.get("/select/:id/show", requireLoginReviewer, async (req, res) => {
   const { id } = req.params;
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT * from article where article_id=${id}; SELECT *, reviewer.username from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id`,
+      `SELECT * from article where article_id=${id}; SELECT *, reviewer.username from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id; SELECT AVG(comments.rating) AS avg FROM comments, article where article.article_id=comments.article_id AND article.article_id=${id};`,
       async (err, data) => {
         connection.release();
         if (err) console.log(err);
         else {
           //console.log(data);
           comments = data[1];
+          avg = data[2][0];
           data = data[0][0];
-          console.log(data, comments);
-          res.render("routes/admin_show", { data, comments });
+          console.log(data, comments,avg);
+          res.render("routes/admin_show", { data, comments, avg});
         }
       }
     );
   });
 });
+
+app.post("/select/:id", async(req,res)=> {
+    const { id } = req.params;
+        pool.getConnection(function (err, connection) {
+          connection.query(
+            `UPDATE article set status="rated" WHERE article_id=${id};`,
+            async (err, articles) => {
+              connection.release();
+              if (err) console.log(err);
+              else {
+                req.flash("success", "Selected article successfully!");
+                res.redirect("/select");
+              }
+            }
+          );
+        });
+
+})
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");

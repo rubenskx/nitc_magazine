@@ -1,6 +1,6 @@
 <% layout('layout/boilerplate') %>
 
-<form action="/article/edit/<%=article.article_id%>" method="POST">
+<form action="/article/<%=article.article_id%>/edit" method="POST">
     <div class="mb-3">
       <label for="articleHeading" class="form-label">Heading</label>
       <input name="articleHeading" type="text" class="form-control" id="articleHeading" value="<%=article.title%>">
@@ -16,6 +16,6 @@
     <br>
     <button type="submit" class="btn btn-primary">Edit</button>
   </form>
-  <form action="/article/delete/<%=article.article_id%>" method="POST">
+  <form action="/article/<%=article.article_id%>/delete" method="POST">
     <button type="submit" class="btn btn-danger">Delete</button>
 </form>
