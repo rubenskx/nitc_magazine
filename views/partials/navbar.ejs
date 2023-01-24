@@ -1,20 +1,24 @@
-<nav class="navbar navbar-expand-xl  bg-body-tertiary bg-dark" data-bs-theme="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend&display=swap" rel="stylesheet">
+<nav class="navbar navbar-expand-xl " data-bs-theme="dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/This_is_the_logo_of_NIT_Calicut.svg/800px-This_is_the_logo_of_NIT_Calicut.svg.png" class="logo" alt="nit logo"/>Magazine </a>
+    <a class="navbar-brand" href="#" style="color:black;">
+      <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/This_is_the_logo_of_NIT_Calicut.svg/800px-This_is_the_logo_of_NIT_Calicut.svg.png" class="logo" alt="nit logo">Magazine </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav navstyle">
-        <a class="nav-link active" aria-current="page" href="#">Home</a>
+        <a class="nav-link active" aria-current="page" href="#"  style="color:black;">Home</a>
         <% if (typeof username!== 'undefined') {%> 
           <% if ( typeof admin !== 'undefined' && admin === "admin") {%>
-              <a class="nav-link" aria-current="page" href="/reviewer">Reviewers</a>
-              <a class="nav-link" aria-current="page" href="/article/create">Add Article</a>
-              <a class="nav-link" aria-current="page" href="/reviewer/create">Add Reviewer</a>
+              <a class="nav-link ms-3" aria-current="page" href="/reviewer" style="color:black;">Reviewers</a>
+              <a class="nav-link ms-3" aria-current="page" href="/article/create"  style="color:black;">Add Article</a>
+              <a class="nav-link ms-3" aria-current="page" href="/reviewer/create"  style="color:black;">Add Reviewer</a>
             <% } %>  
-              <form class="d-flex" action="/logout" method="POST">
-                <button class="btn btn-outline-success" type="submit">Logout</button>
+              <form class="d-flex" id="login-form" action="/logout" method="POST">
+                <button class="btn btn-outline-success btn-btn" type="submit" id="log">Logout</button>
               </form>
         <% } %> 
       </div>

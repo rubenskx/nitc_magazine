@@ -25,7 +25,6 @@ var pool = mysql.createPool({
   password: "",
   database: "magazine",
   multipleStatements: "true", //this is required for querying multiple statements in mysql
-  port:8111
 });
 
 app.use(
