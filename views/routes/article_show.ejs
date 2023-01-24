@@ -2,8 +2,9 @@
 <link rel="stylesheet" href="/stylesheets/stars.css" />
 <h1 style="text-align: center"><%= data.title %></h1>
 <p style="text-align: right">Written By -<b><%= data.author_name %></b></p>
+<img src="<%= data.img %>" class="img_margin img-fluid" alt="article_img"/> 
 <hr />
-<p class="lead"><%= data.content %></p>
+<p class="lead"><%- data.content %></p>
 <hr />
 
   <% if (typeof comment === 'undefined') {%> 
@@ -48,7 +49,7 @@
       <label for="first-rate5" title="Amazing">5 stars</label>
     </fieldset>
   </div>
-  <button class="btn btn-success">Submit</button>
+  <button class="btn-btn" id="submit">Submit</button>
   </form>
   <% } else { %>
 <h2>Edit your review</h2>

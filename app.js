@@ -9,7 +9,8 @@ const methodOverride = require("method-override");
 const { allowedNodeEnvironmentFlags, emitWarning } = require("process");
 const bcrypt = require("bcrypt");
 const jquery = require("jquery");
-const e = require("connect-flash");
+
+const  seedPics  =  require('./utils/picHelpers');
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -25,6 +26,7 @@ var pool = mysql.createPool({
   password: "",
   database: "magazine",
   multipleStatements: "true", //this is required for querying multiple statements in mysql
+
 });
 
 app.use(
@@ -143,10 +145,11 @@ app.post(
   requireLoginAdmin,
   async (req, res) => {
     let mm = new Date().toISOString().slice(0, 10).replace("T", " ");
-
+    const imgSrc = seedPics[Math.floor(Math.random()*8)];
+    req.body.articleContent = req.body.articleContent.replace("\r\n", "</br></br>");
     pool.getConnection(function (err, connection) {
       connection.query(
-        `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0)`,
+        `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating,img) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0,"${imgSrc}")`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);
@@ -446,7 +449,7 @@ app.get(
   async (req, res) => {
     pool.getConnection(function (err, connection) {
       connection.query(
-        `SELECT * FROM article WHERE status="waiting ORDER BY avg_rating DESC"`,
+        `SELECT * FROM article WHERE status="waiting" ORDER BY avg_rating DESC`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);

@@ -85,3 +85,24 @@ body {
 #submit:hover {
     background-color: #ee964b;
 }
+
+#select {
+    background-color: #f72585;
+}
+
+#select:hover {
+    background-color: #b5179e;
+}
+
+@media(min-width:768px) {
+    .img_margin{
+        margin-left: 5%;
+    }
+}
+
+.profile{
+    height:60px;
+    width: 60px;
+    border-radius: 50%;
+    background-size: cover;
+}

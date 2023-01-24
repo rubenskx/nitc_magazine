@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="/stylesheets/stars.css" />
 <h1 style="text-align: center"><%= data.title %></h1>
 <p style="text-align: right">Written By -<b><%= data.author_name %></b></p>
+<img src="<%= data.img %>" class="img_margin img-fluid" alt="article_img"/> 
 <hr />
 <p class="lead"><%= data.content %></p>
 <hr />
@@ -12,21 +13,15 @@
 <% for (comment of comments) {%>
     <div class="card mb-3">
         <div class="card-body">
-            <label class="form-label" for="content"><b><%= comment.name %> </b> says</label>
-            <textarea
-            class="form-control"
-            name="content"
-            id="body"
-            cols="30"
-            rows="3"
-            ><%= comment.content  %></textarea>
-        <p class="starability-result" data-rating="<%= comment.rating %>">
+            <img class="profile" src="<%= comment.img %>" /><label class="ms-2 form-label" for="content"><b><%= comment.name %> </b> says</label>
+            <p style="padding-left: 70px;"><%= comment.content  %></p>
+        <p class="starability-result" style="margin-left: 70px;" data-rating="<%= comment.rating %>">
         </p>
         </div>
   </div>
 <% } %> 
 <p class="ms-auto">Average rating is: <b><%= avg.avg %></b></p>
-        <form class="d-flex" action="/select/<%= data.article_id %>" method="POST">
-            <button class="btn btn-primary" type="submit">Select</button>
+        <form class="d-flex mb-5" action="/select/<%= data.article_id %>" method="POST">
+            <button class="btn-btn" id="select" type="submit">Select</button>
         </form>
 <% } %> 

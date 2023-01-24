@@ -4,18 +4,23 @@
 
 <% for (let article of articles) { %>
 <div class="card mb-3">
-  <div class="card-body">
+  <div class="row card-body">
+      <div class="col-sm-6">
+      <img src="<%= article.img %>" class="img-fluid" alt="article_img"/> 
+    </div>
+    <div class="col-sm-6">
     <h5 class="card-title"><%= article.title %></h5>
     <p class=""><b><%= article.author_name %> </b></p>
     <!-- <p class="card-text"><%= article.content %> </p> -->
     <p class="card-text">Posted on : <%= article.upload_date %></p>
     <p class="card-text">Rating: <%= article.avg_rating %></p>
-    <a href="/select/<%= article.article_id %>/show" class="btn btn-primary"
+    <a href="/select/<%= article.article_id %>/show" id="submit" class="btn-btn"
       >Read</a
     >
-    <a href="/article/<%= article.article_id %>/edit" class="btn btn-success"
+    <a href="/article/<%= article.article_id %>/edit" id="edit"class="btn-btn"
       >Edit</a
     >
+    </div>
   </div>
 </div>
 <% } %>
