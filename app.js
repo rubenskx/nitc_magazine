@@ -25,6 +25,7 @@ var pool = mysql.createPool({
   password: "",
   database: "magazine",
   multipleStatements: "true", //this is required for querying multiple statements in mysql
+  port:8111
 });
 
 app.use(
@@ -317,7 +318,10 @@ app.post(
           `INSERT INTO reviewer(username,login_password,name,dob,post) VALUES ("${rUsername}","${hash}","${rName}","${rDob}","reviewer")`,
           async (err, articles) => {
             connection.release();
-            if (err) console.log(err);
+            if (err) {
+              req.flash("error","This email already exists, please enter different email")
+              res.redirect("/reviewer/create");
+            }
             else {
               req.flash("success", "Created reviewer successfully!");
               res.redirect("/reviewer");
