@@ -116,7 +116,7 @@ app.post("/logout", (req, res) => {
 app.get("/article", requireLoginReviewer, async (req, res) => {
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article where status="unrated"`,
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article where status<>"rated"`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
@@ -251,15 +251,26 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
   const date = new Date().toISOString().slice(0, 10).replace("T", " ");
   pool.getConnection(function (err, connection) {
     connection.query(
-      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid})`,
+      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid}); UPDATE article SET count=count+1; SELECT count FROM article;`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
         else {
-          req.flash("success", "Added review successfully!");
-          res.redirect(`/article`);
+            if(articles[2][0].count > 5){
+              pool.getConnection(function (err, connection) {
+                connection.query(
+                  `UPDATE article set status="waiting";`,
+                  async (err, data) => {
+                    connection.release();
+                    if (err) console.log(err);
+                  }
+                );
+              });
+                req.flash("success","Updated review successfully!");
+                res.redirect(`/article`);
         }
       }
+    }
     );
   });
 });
@@ -416,7 +427,7 @@ app.get(
   async (req, res) => {
     pool.getConnection(function (err, connection) {
       connection.query(
-        `SELECT * FROM article WHERE status="unrated"`,
+        `SELECT * FROM article WHERE status="waiting"`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);
@@ -467,6 +478,10 @@ app.post("/select/:id", async (req, res) => {
     );
   });
 });
+
+app.get('/register', async(req,res)=> {
+  res.render("routes/sign_up.ejs");
+})
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
