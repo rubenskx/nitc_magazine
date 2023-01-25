@@ -10,7 +10,7 @@ const { allowedNodeEnvironmentFlags, emitWarning } = require("process");
 const bcrypt = require("bcrypt");
 const jquery = require("jquery");
 
-const  seedPics  =  require('./utils/picHelpers');
+const seedPics = require("./utils/picHelpers");
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -26,7 +26,6 @@ var pool = mysql.createPool({
   password: "",
   database: "magazine",
   multipleStatements: "true", //this is required for querying multiple statements in mysql
-
 });
 
 app.use(
@@ -145,8 +144,11 @@ app.post(
   requireLoginAdmin,
   async (req, res) => {
     let mm = new Date().toISOString().slice(0, 10).replace("T", " ");
-    const imgSrc = seedPics[Math.floor(Math.random()*8)];
-    req.body.articleContent = req.body.articleContent.replace("\r\n", "</br></br>");
+    const imgSrc = seedPics[Math.floor(Math.random() * 8)];
+    req.body.articleContent = req.body.articleContent.replace(
+      "\r\n",
+      "</br></br>"
+    );
     pool.getConnection(function (err, connection) {
       connection.query(
         `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating,img) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0,"${imgSrc}")`,
@@ -259,23 +261,34 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
         connection.release();
         if (err) console.log(err);
         else {
-            const waitingUpdate = (articles[2][0].count > 5) ? `UPDATE article set status="waiting";` : ``;
-            const conditional = `WHERE article_id=${id}`;
-            const newRating =((articles[2][0].count - 1) * articles[2][0].avg_rating + parseInt(req.body.rating))/(articles[2][0].count);
-              console.log(newRating,articles[2][0].count,articles[2][0].avg_rating,req.body.rating);
-              pool.getConnection(function (err, connection) {
-                connection.query(
-                  `UPDATE article SET avg_rating=${newRating} ${conditional};${waitingUpdate} ${conditional}`,
-                  async (err, data) => {
-                    connection.release();
-                    if (err) console.log(err);
-                  }
-                );
-              });
-                req.flash("success","Updated review successfully!");
-                res.redirect(`/article`);
+          const waitingUpdate =
+            articles[2][0].count > 5
+              ? `UPDATE article set status="waiting";`
+              : ``;
+          const conditional = `WHERE article_id=${id}`;
+          const newRating =
+            ((articles[2][0].count - 1) * articles[2][0].avg_rating +
+              parseInt(req.body.rating)) /
+            articles[2][0].count;
+          console.log(
+            newRating,
+            articles[2][0].count,
+            articles[2][0].avg_rating,
+            req.body.rating
+          );
+          pool.getConnection(function (err, connection) {
+            connection.query(
+              `UPDATE article SET avg_rating=${newRating} ${conditional};${waitingUpdate} ${conditional}`,
+              async (err, data) => {
+                connection.release();
+                if (err) console.log(err);
+              }
+            );
+          });
+          req.flash("success", "Updated review successfully!");
+          res.redirect(`/article`);
+        }
       }
-    }
     );
   });
 });
@@ -290,18 +303,27 @@ app.put("/article/:id/comment/:cid", requireLoginReviewer, async (req, res) => {
         connection.release();
         if (err) console.log(err);
         else {
-              const conditional = `WHERE article_id=${id}`;
-              const newRating = (articles[2][0].avg_rating*articles[2][0].count  - articles[0][0].rating + parseInt(rating))/articles[2][0].count;
-              console.log(newRating,articles[2][0].count,articles[2][0].avg_rating,parseInt(rating));
-              pool.getConnection(function (err, connection) {
-                connection.query(
-                  `UPDATE article SET avg_rating=${newRating} ${conditional};`,
-                  async (err, data) => {
-                    connection.release();
-                    if (err) console.log(err);
-                  }
-                );
-              });
+          const conditional = `WHERE article_id=${id}`;
+          const newRating =
+            (articles[2][0].avg_rating * articles[2][0].count -
+              articles[0][0].rating +
+              parseInt(rating)) /
+            articles[2][0].count;
+          console.log(
+            newRating,
+            articles[2][0].count,
+            articles[2][0].avg_rating,
+            parseInt(rating)
+          );
+          pool.getConnection(function (err, connection) {
+            connection.query(
+              `UPDATE article SET avg_rating=${newRating} ${conditional};`,
+              async (err, data) => {
+                connection.release();
+                if (err) console.log(err);
+              }
+            );
+          });
           req.flash("success", "Updated review successfully!");
           res.redirect(`/article`);
         }
@@ -334,10 +356,12 @@ app.post(
           async (err, articles) => {
             connection.release();
             if (err) {
-              req.flash("error","This email already exists, please enter different email")
+              req.flash(
+                "error",
+                "This email already exists, please enter different email"
+              );
               res.redirect("/reviewer/create");
-            }
-            else {
+            } else {
               req.flash("success", "Created reviewer successfully!");
               res.redirect("/reviewer");
             }
@@ -358,7 +382,7 @@ app.get(
   async (req, res) => {
     pool.getConnection(function (err, connection) {
       connection.query(
-        `SELECT * from reviewer where post <> "admin" `,
+        `SELECT *, DATE_FORMAT(dob, '%d-%m-%Y') as date from reviewer where post <> "admin" `,
         async (err, reviewers) => {
           connection.release();
           if (err) console.log(err);
@@ -407,10 +431,12 @@ app.post(
         async (err, reviewers) => {
           connection.release();
           if (err) {
-            req.flash("error","This email already exists, please enter different email")
+            req.flash(
+              "error",
+              "This email already exists, please enter different email"
+            );
             res.redirect("/reviewer/${id}/edit");
-          }
-          else {
+          } else {
             req.flash("success", "Updated reviewer details successfully!");
             res.redirect("/reviewer");
           }
@@ -449,7 +475,7 @@ app.get(
   async (req, res) => {
     pool.getConnection(function (err, connection) {
       connection.query(
-        `SELECT * FROM article WHERE status="waiting" ORDER BY avg_rating DESC`,
+        `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS edited_date, MONTH(upload_date) as month FROM article WHERE status="waiting" ORDER BY avg_rating DESC`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);
@@ -467,7 +493,7 @@ app.get("/select/:id/show", requireLoginReviewer, async (req, res) => {
   const { id } = req.params;
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT * from article where article_id=${id}; SELECT *, reviewer.username from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id; SELECT AVG(comments.rating) AS avg FROM comments, article where article.article_id=comments.article_id AND article.article_id=${id};`,
+      `SELECT * from article where article_id=${id}; SELECT *, reviewer.username, YEAR(reviewer.dob) as year from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id; SELECT AVG(comments.rating) AS avg FROM comments, article where article.article_id=comments.article_id AND article.article_id=${id};`,
       async (err, data) => {
         connection.release();
         if (err) console.log(err);
@@ -501,9 +527,9 @@ app.post("/select/:id", async (req, res) => {
   });
 });
 
-app.get('/register', async(req,res)=> {
+app.get("/register", async (req, res) => {
   res.render("routes/sign_up.ejs");
-})
+});
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
