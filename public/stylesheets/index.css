@@ -117,3 +117,41 @@ body {
 .comments{
     border-bottom: 2px solid black;
 }
+
+.parent::after {
+    content: 'Welcome to NITC Magazine!';
+    animation: show-up 1s ease-out forwards;
+    position: absolute;
+    top: 60%;
+    color: white;
+    font-weight: bold;
+    font-size: 3rem;
+    padding-left: 10px;
+    mix-blend-mode: hard-light;
+    text-align: left;
+}
+
+.video {
+    height: 100%;
+    width: 100%
+}
+
+@media (max-width:1200px) {
+    .video {
+        height: 100%;
+        width: auto;
+
+    }
+}
+
+@keyframes show-up {
+    from {
+        opacity: 0;
+        transform: translateX(0rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(5rem);
+    }
+}

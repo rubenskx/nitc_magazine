@@ -11,6 +11,7 @@ const bcrypt = require("bcrypt");
 const jquery = require("jquery");
 
 const seedPics = require("./utils/picHelpers");
+const home = "home";
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -122,7 +123,7 @@ app.get("/article", requireLoginReviewer, async (req, res) => {
         connection.release();
         if (err) console.log(err);
         else {
-          res.render("routes/article", { articles });
+          res.render("routes/article", { articles , home });
         }
       }
     );
@@ -481,7 +482,7 @@ app.get(
           if (err) console.log(err);
           else {
             console.log(articles);
-            res.render("routes/select", { articles });
+            res.render("routes/select", { articles, home });
           }
         }
       );
@@ -548,7 +549,7 @@ app.get("/", async (req, res) => {
           console.log(articles);
           req.session.type = "viewer";
           req.session.username = "random";
-          res.render("routes/select", { articles });
+          res.render("routes/select", { articles , home});
         }
       }
     );
@@ -567,7 +568,7 @@ app.get("/search", async (req, res) => {
           req.session.type = "viewer";
           req.session.username = "random";
           const search = req.query.search;
-          res.render("routes/search", { articles, search });
+          res.render("routes/search", { articles, search , home });
         }
       }
     );
