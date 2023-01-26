@@ -14,6 +14,7 @@ const nodemailer = require('nodemailer');
 const  seedPics  =  require('./utils/picHelpers');
 const Math = require('mathjs')
 
+const home = "home";
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
@@ -65,6 +66,10 @@ const requireLoginAdmin = (req, res, next) => {
 };
 
 app.get("/login", async (req, res) => {
+  req.session.user_id = null;
+  req.session.username = null;
+  req.session.type = null;
+  req.session.destroy();
    res.render("routes/login");
 });
 app.get("/forgotpassword", async (req, res) => {
@@ -73,6 +78,7 @@ app.get("/forgotpassword", async (req, res) => {
 
 
 app.post("/login", async (req, res) => {
+
   const { password, username } = req.body;
   pool.getConnection(function (err, connection) {
     connection.query(
@@ -462,7 +468,7 @@ app.get(
   async (req, res) => {
     pool.getConnection(function (err, connection) {
       connection.query(
-        `SELECT * from reviewer where post <> "admin" `,
+        `SELECT *,DATE_FORMAT(dob, '%d-%m-%Y') AS date from reviewer where post <> "admin" `,
         async (err, reviewers) => {
           connection.release();
           if (err) console.log(err);
@@ -609,7 +615,66 @@ app.get('/register', async(req,res)=> {
   res.render("routes/sign_up.ejs");
 })
 
+app.get("/", async (req, res) => {
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS edited_date, MONTH(upload_date) as month FROM article WHERE status="waiting" ORDER BY avg_rating DESC`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          console.log(articles);
+          req.session.type = "viewer";
+          req.session.username = "random";
+          res.render("routes/select", { articles , home});
+        }
+      }
+    );
+  });
+});
 
+app.get("/search", async (req, res) => {
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS edited_date, MONTH(upload_date) as month FROM article WHERE status="waiting" AND content LIKE "%${req.query.search}%" ORDER BY avg_rating DESC`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          console.log(articles);
+          req.session.type = "viewer";
+          req.session.username = "random";
+          const search = req.query.search;
+          res.render("routes/search", { articles, search , home });
+        }
+      }
+    );
+  });
+});
+
+app.get(
+  "/:id/show",
+  async (req, res) => {
+    const { id } = req.params;
+    pool.getConnection(function (err, connection) {
+      connection.query(
+        `SELECT * from article where article_id=${id}; SELECT *, reviewer.username, YEAR(reviewer.dob) as year from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id; SELECT AVG(comments.rating) AS avg FROM comments, article where article.article_id=comments.article_id AND article.article_id=${id};`,
+        async (err, data) => {
+          connection.release();
+          if (err) console.log(err);
+          else {
+            //console.log(data);
+            comments = data[1];
+            avg = data[2][0];
+            data = data[0][0];
+            console.log(data, comments, avg);
+            res.render("routes/admin_show", { data, comments, avg });
+          }
+        }
+      );
+    });
+  }
+);
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");

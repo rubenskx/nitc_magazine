@@ -15,7 +15,8 @@
     <p class="card-text">Posted on : <%= article.date %> </p>
     <% if (typeof(admin) !== 'undefined' && admin === 'reviewer') {%> 
     <a href="/article/<%= article.article_id %>/show" class="btn-btn" id="show">Read</a>
-    <% } else if(admin === 'viewer) {%>
+    <% }%>
+    <% if (typeof(admin) !== 'undefined' && admin === 'viewer') {%> 
        <a href="/<%= article.article_id %>/show" class="btn-btn" id="show">Read</a>
       <% } %>  
     </div>
