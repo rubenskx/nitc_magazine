@@ -13,6 +13,7 @@
     />
     <link rel="stylesheet" href="/stylesheets/index.css" />
     <link rel="stylesheet" href="/stylesheets/flashMessage.css" />
+    <link rel="stylesheet" href="/stylesheets/searchButton.css" />
   </head>
 
   <body class="d-flex flex-column vh-100">
@@ -24,6 +25,7 @@
       integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
       crossorigin="anonymous"
     ></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
       const links = document.querySelectorAll(".links");
       const home = document.querySelector("#home");
@@ -50,6 +52,20 @@
       if (window.location.href.includes("reviewer") && !window.location.href.includes("reviewer/create")) {
         reviewer.style.borderBottom = style;
       }
+
+      function searchToggle(obj, evt){
+          console.log("hello");
+        var container = $(obj).closest('.search-wrapper');
+            if(!container.hasClass('active')){
+                container.addClass('active');
+                evt.preventDefault();
+            }
+            else if(container.hasClass('active') && $(obj).closest('.input-holder').length == 0){
+                container.removeClass('active');
+                container.find('.search-input').val('');
+            }
+        }
+
     </script>
   </body>
 </html>

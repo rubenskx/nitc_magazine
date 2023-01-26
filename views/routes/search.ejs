@@ -1,0 +1,20 @@
+<% layout('layout/boilerplate') %>
+
+<h1>Articles containing "<%= search %>"</h1>
+
+<% for (let article of articles) { %>
+<div class="card mb-3">
+  <div class="row card-body">
+    <div class="col-sm-6">
+      <img src="<%= article.img %>" class="img-fluid" alt="article_img"/> 
+    </div>
+    <div class="col-sm-6">
+    <h5 class="card-title mt-5"><%= article.title %> </h5>
+    <p class=""><b><%= article.author_name %> </b></p>
+    <p class="card-text"><%= article.content.substring(0,150) %>...</p>
+    <p class="card-text">Posted on : <%= article.edited_date %> </p>
+    <a href="/<%= article.article_id %>/show" class="btn-btn" id="show" style="width:100%;">Read</a>
+    </div>
+  </div>
+</div>
+    <% } %>  

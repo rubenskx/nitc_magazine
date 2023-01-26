@@ -489,47 +489,114 @@ app.get(
   }
 );
 
-app.get("/select/:id/show", requireLoginReviewer, async (req, res) => {
-  const { id } = req.params;
-  pool.getConnection(function (err, connection) {
-    connection.query(
-      `SELECT * from article where article_id=${id}; SELECT *, reviewer.username, YEAR(reviewer.dob) as year from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id; SELECT AVG(comments.rating) AS avg FROM comments, article where article.article_id=comments.article_id AND article.article_id=${id};`,
-      async (err, data) => {
-        connection.release();
-        if (err) console.log(err);
-        else {
-          //console.log(data);
-          comments = data[1];
-          avg = data[2][0];
-          data = data[0][0];
-          console.log(data, comments, avg);
-          res.render("routes/admin_show", { data, comments, avg });
+app.get(
+  "/select/:id/show",
+  requireLoginReviewer,
+  requireLoginAdmin,
+  async (req, res) => {
+    const { id } = req.params;
+    pool.getConnection(function (err, connection) {
+      connection.query(
+        `SELECT * from article where article_id=${id}; SELECT *, reviewer.username, YEAR(reviewer.dob) as year from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id; SELECT AVG(comments.rating) AS avg FROM comments, article where article.article_id=comments.article_id AND article.article_id=${id};`,
+        async (err, data) => {
+          connection.release();
+          if (err) console.log(err);
+          else {
+            //console.log(data);
+            comments = data[1];
+            avg = data[2][0];
+            data = data[0][0];
+            console.log(data, comments, avg);
+            res.render("routes/admin_show", { data, comments, avg });
+          }
         }
-      }
-    );
-  });
-});
+      );
+    });
+  }
+);
 
-app.post("/select/:id", async (req, res) => {
-  const { id } = req.params;
+app.post(
+  "/select/:id",
+  requireLoginReviewer,
+  requireLoginAdmin,
+  async (req, res) => {
+    const { id } = req.params;
+    pool.getConnection(function (err, connection) {
+      connection.query(
+        `UPDATE article set status="rated" WHERE article_id=${id};`,
+        async (err, articles) => {
+          connection.release();
+          if (err) console.log(err);
+          else {
+            req.flash("success", "Selected article successfully!");
+            res.redirect("/select");
+          }
+        }
+      );
+    });
+  }
+);
+
+app.get("/", async (req, res) => {
   pool.getConnection(function (err, connection) {
     connection.query(
-      `UPDATE article set status="rated" WHERE article_id=${id};`,
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS edited_date, MONTH(upload_date) as month FROM article WHERE status="waiting" ORDER BY avg_rating DESC`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
         else {
-          req.flash("success", "Selected article successfully!");
-          res.redirect("/select");
+          console.log(articles);
+          req.session.type = "viewer";
+          req.session.username = "random";
+          res.render("routes/select", { articles });
         }
       }
     );
   });
 });
 
-app.get("/register", async (req, res) => {
-  res.render("routes/sign_up.ejs");
+app.get("/search", async (req, res) => {
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS edited_date, MONTH(upload_date) as month FROM article WHERE status="waiting" AND content LIKE "%${req.query.search}%" ORDER BY avg_rating DESC`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          console.log(articles);
+          req.session.type = "viewer";
+          req.session.username = "random";
+          const search = req.query.search;
+          res.render("routes/search", { articles, search });
+        }
+      }
+    );
+  });
 });
+
+app.get(
+  "/:id/show",
+  async (req, res) => {
+    const { id } = req.params;
+    pool.getConnection(function (err, connection) {
+      connection.query(
+        `SELECT * from article where article_id=${id}; SELECT *, reviewer.username, YEAR(reviewer.dob) as year from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id; SELECT AVG(comments.rating) AS avg FROM comments, article where article.article_id=comments.article_id AND article.article_id=${id};`,
+        async (err, data) => {
+          connection.release();
+          if (err) console.log(err);
+          else {
+            //console.log(data);
+            comments = data[1];
+            avg = data[2][0];
+            data = data[0][0];
+            console.log(data, comments, avg);
+            res.render("routes/admin_show", { data, comments, avg });
+          }
+        }
+      );
+    });
+  }
+);
 
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
