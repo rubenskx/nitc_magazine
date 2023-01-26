@@ -25,30 +25,6 @@ body {
     margin-left: auto;
 }
 
-.btn-btn{
-        display: inline-block;
-        outline: none;
-        cursor: pointer;
-        font-size: 14px;
-        line-height: 1;
-        border-radius: 500px;
-        transition-property: background-color, border-color, color, box-shadow, filter;
-        transition-duration: .3s;
-        border: 1px solid transparent;
-        letter-spacing: 2px;
-        min-width: 160px;
-        text-transform: uppercase;
-        white-space: normal;
-        font-weight: 700;
-        text-align: center;
-        padding: 16px 14px 18px;
-        color: #fff;
-        height: 48px;
-        text-decoration: none;
-    
-
-}
-
 #log{
     background-color: #6a040f;
 }
@@ -94,11 +70,6 @@ body {
     background-color: #b5179e;
 }
 
-@media(min-width:768px) {
-    .img_margin{
-        margin-left: 5%;
-    }
-}
 
 .profile{
     height:60px;
@@ -155,3 +126,112 @@ body {
         transform: translateX(5rem);
     }
 }
+
+body {
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    font-family: 'Lexend', sans-serif;
+}
+
+.navstyle{
+    margin-left: 25%;
+    width: 100%;
+}
+
+.date_text{
+    margin-left: 70%;
+}
+
+.logo {
+    height: 42px;
+    padding-right: 20px;
+}
+
+#login-form{
+    margin-left: auto;
+}
+
+.btn-btn{
+        display: inline-block;
+        outline: none;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        border-radius: 500px;
+        transition-property: background-color, border-color, color, box-shadow, filter;
+        transition-duration: .3s;
+        border: 1px solid transparent;
+        letter-spacing: 2px;
+        min-width: 160px;
+        text-transform: uppercase;
+        white-space: normal;
+        font-weight: 700;
+        text-align: center;
+        padding: 16px 14px 18px;
+        color: #fff;
+        height: 48px;
+        text-decoration: none;
+    
+
+}
+
+
+
+
+.card{
+    border-radius: 25px;
+}
+
+.card:hover{
+    box-shadow: 4px 4px black;
+}
+
+.cbtn{
+    position: relative;
+    top: -10px;
+}
+
+.container2 {
+    background-color: #f1f1f1;
+    padding: 20px;
+  }
+  
+  /* The message box is shown when the user clicks on the password field */
+  #message {
+    display:none;
+    background: #f1f1f1;
+    color: #000;
+    position: relative;
+    margin-top: 10px;
+    max-width: 250px;
+    padding-bottom:0px ;
+  }
+  
+  #message p {
+    padding: 10px 35px;
+    font-size: 10px;
+  }
+  
+  /* Add a green text color and a checkmark when the requirements are right */
+  .valid {
+    color: green;
+  }
+  
+  .valid:before {
+    position: relative;
+    left: -10px;
+    content: "✔";
+  }
+  
+  /* Add a red text color and an "x" when the requirements are wrong */
+  .invalid {
+    color: red;
+  }
+  
+  .invalid:before {
+    position: relative;
+    left: -10px;
+    content: "✖";
+  }

@@ -1,0 +1,324 @@
+body {
+	background: url("../images/bg.jpg") no-repeat center center fixed;
+	background-size: cover;
+	font-size: 16px;
+	font-family: 'Lato', sans-serif;
+	font-weight: 300;
+	margin: 0;
+	color: rgb(253, 253, 253);
+}
+
+.card-body{
+    max-width: 340px;
+	margin: 0 auto;
+	position: relative;
+	background-color: rgba(255, 255, 255,0.1);
+	padding-bottom: 30px;
+	border-radius: 15px;
+    padding: 10px;
+	/* box-shadow: 0 5px 50px rgba(0,0,0,0.4); */
+	text-align: center;
+	width:50%;
+}
+
+input{
+    
+  background: rgba(255, 255, 255,0.2);
+   
+  font-size: medium;
+  color: white;
+
+}
+
+input:hover{
+    background: rgba(255, 255, 255,0);
+
+    border-color: 3 px solid white; 
+    
+}
+input:focus{
+    background: rgba(255, 255, 255,0);
+}
+
+.form-ctl:hover{
+    border-color: 3 px solid white; 
+}
+
+
+
+.form-ctl{
+    border-radius: 30px;
+    width:100%;
+    position: relative;
+    /* border: 0px;   */
+    padding:12px;
+    border: 5 px solid white; 
+}
+
+.checkbox{
+    background:rgba(255, 255, 255,0.4)
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: white;
+    opacity: 1; /* Firefox */
+  }
+  
+  :-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: white;
+  }
+  
+  ::-ms-input-placeholder { /* Microsoft Edge */
+    color: white;
+  }
+
+
+  .container1 {
+    position: relative;
+    padding-left: 27px;
+    margin-bottom: 0px;
+    cursor: pointer;
+    font-size: 15px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Hide the browser's default checkbox */
+  .container1 input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  /* Create a custom checkbox */
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 19px;
+    width: 19px;
+    border-radius: 8px;
+    border:3px;
+    border-color: white;
+    background-color: rgba(255, 255, 255,0.4);
+  }
+
+  .container1:hover input ~ .checkmark {
+    background-color: rgba(255, 255, 255,0.8);
+  }
+  
+  /* When the checkbox is checked, add a grey background */
+  .container1 input:checked ~ .checkmark {
+    background-color: #4a5660;
+  }
+  
+  /* Create the checkmark/indicator (hidden when not checked) */
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  /* Show the checkmark when checked */
+  .container1 input:checked ~ .checkmark:after {
+    display: block;
+  }
+  
+  /* Style the checkmark/indicator */
+  .container1 .checkmark:after {
+    left: 7px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+
+  .forgotp{
+    color: white;
+    text-decoration: none;
+  }
+
+  .forgotp:hover{
+     
+     color: rgb(108, 183, 240);
+    text-shadow: 1px 1px rgb(0, 0, 0);
+     text-decoration: underline;
+  }
+
+  .loginbtn {
+    display: inline-block;
+    padding: 8px 17px;
+    font-size: 22px;
+    cursor:pointer;
+    text-align: center;
+    text-decoration: none;
+    
+    outline: none;
+    color: black;
+    background-color: rgba(255, 255, 255,0.2);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px rgb(0, 0, 0);
+    transition: all 0.3s;
+  }
+ 
+  .loginbtn span{
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.3s;
+}
+
+.loginbtn span:after {
+    content: '\00bb';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -10px;
+    transition: 0.3s;
+  }
+
+  .loginbtn:hover span {
+    padding-right: 17px;
+  }
+  
+  .loginbtn:hover span:after {
+    opacity: 1;
+    right: 0;
+  }
+
+  .loginbtn:hover {
+    background-color: rgb(41, 202, 38);
+}
+  
+.loginbtn:active {
+    background-color: rgb(49, 202, 38);
+    box-shadow: 0 5px rgb(0, 0, 0);
+    transform: translateY(4px);
+}
+
+.container2 {
+    background-color: #f1f1f1;
+    padding: 20px;
+  }
+  
+  /* The message box is shown when the user clicks on the password field */
+  #message {
+    display:none;
+    background: #f1f1f1;
+    color: #000;
+    position: relative;
+    margin-top: 10px;
+    max-width: 250px;
+  }
+  
+  #message p {
+    padding: 10px 35px;
+    font-size: 10px;
+  }
+  
+  /* Add a green text color and a checkmark when the requirements are right */
+  .valid {
+    color: green;
+  }
+  
+  .valid:before {
+    position: relative;
+    left: -35px;
+    content: "✔";
+  }
+  
+  /* Add a red text color and an "x" when the requirements are wrong */
+  .invalid {
+    color: red;
+  }
+  
+  .invalid:before {
+    position: relative;
+    left: -35px;
+    content: "✖";
+  }
+
+  .box-2{
+    position: relative;
+    right: 95px;
+  }
+
+  .otc {
+	position: relative;
+	width: 320px;
+	margin: 0 auto;
+}
+
+.otc fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+.otc fieldset div {
+	display: flex;
+	align-items: center;
+}
+
+.otc legend {
+	margin: 0 auto 1em;
+	color: #5555FF;
+}
+
+input[type="number"] {
+	width: .82em;
+	line-height: 1;
+	margin: .1em;
+	padding: 8px 0 4px;
+	font-size: 2.65em;
+	text-align: center;
+	appearance: textfield;
+	-webkit-appearance: textfield;
+	border: 2px solid #BBBBFF;
+	color: purple;
+	border-radius: 4px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 2 group of 3 items */
+input[type="number"]:nth-child(n+4) {
+	order: 2;
+}
+.otc div::before {
+	content: '';
+	height: 2px;
+	width: 24px;
+	margin: 0 .25em;
+	order: 1;
+	background: #BBBBFF;
+}
+
+/* From: https://gist.github.com/ffoodd/000b59f431e3e64e4ce1a24d5bb36034 */
+.otc label {
+	border: 0 !important;
+	clip: rect(1px, 1px, 1px, 1px) !important;
+	-webkit-clip-path: inset(50%) !important;
+	clip-path: inset(50%) !important;
+	height: 1px !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	position: absolute !important;
+	width: 1px !important;
+	white-space: nowrap !important;
+}
+

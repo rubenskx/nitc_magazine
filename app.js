@@ -9,10 +9,12 @@ const methodOverride = require("method-override");
 const { allowedNodeEnvironmentFlags, emitWarning } = require("process");
 const bcrypt = require("bcrypt");
 const jquery = require("jquery");
+const router=express.Router();
+const nodemailer = require('nodemailer');
+const  seedPics  =  require('./utils/picHelpers');
+const Math = require('mathjs')
 
-const seedPics = require("./utils/picHelpers");
 const home = "home";
-
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
@@ -21,12 +23,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(flash());
 
+a=10;
+
 var pool = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "",
   database: "magazine",
   multipleStatements: "true", //this is required for querying multiple statements in mysql
+
 });
 
 app.use(
@@ -61,10 +66,19 @@ const requireLoginAdmin = (req, res, next) => {
 };
 
 app.get("/login", async (req, res) => {
-  res.render("routes/admin_login");
+  req.session.user_id = null;
+  req.session.username = null;
+  req.session.type = null;
+  req.session.destroy();
+   res.render("routes/login");
+});
+app.get("/forgotpassword", async (req, res) => {
+  res.render("routes/forgotpassword");
 });
 
+
 app.post("/login", async (req, res) => {
+
   const { password, username } = req.body;
   pool.getConnection(function (err, connection) {
     connection.query(
@@ -115,6 +129,102 @@ app.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
+app.post("/forgotpassword",async(req,res)=>{
+  const {username}=req.body;
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `SELECT * FROM reviewer WHERE username="${username}";`,
+      async (err, data) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          if (data.length===0){
+            req.flash("error","Username does not exist!");
+            res.redirect("/forgotpassword");
+          }
+          else{
+            //generate 6 digit random number
+            a = Math.floor((Math.random() * 1000000) );
+            var code={a};
+            //send email
+            var transporter = nodemailer.createTransport({
+              service: 'gmail',
+              auth: {
+                user: 'abhay_b200732cs@nitc.ac.in',
+                pass: '10-17-02'
+              }
+            });
+            
+            
+            var mailOptions = {
+              from: 'abhay_b200732cs@nitc.ac.in',
+              to: `${username}`,
+              subject: 'Sending Email using Node.js',
+              text: `Hello ${username}, your code is ${a}`,
+              // html: '<h1>Hi Smartherd</h1><p>Your Messsage</p>'        
+            };
+            
+            transporter.sendMail(mailOptions, function(error, info){
+              if (error) {
+                console.log(error);
+                req.flash("error","Email was not sent because of an error or busy servers");
+                res.redirect("/forgotpassword");
+              } else {
+                console.log('Email sent: ' + info.response);
+                req.flash("success","Email has been sent");
+                res.redirect(`/entercode/${username}`);
+              }
+            });
+          }
+        }
+      }
+    );
+  });
+      
+});
+
+app.get("/entercode/:username", async(req,res)=>{
+  const {username}=req.params;
+  res.render("routes/entercode",{username});
+});
+
+app.post("/entercode/:username",async(req,res)=>{
+  const {username}=req.params;
+  const {rcode1}=req.body;
+  const {rcode2}=req.body;
+  const {rcode3}=req.body;
+  const {rcode4}=req.body;
+  const {rcode5}=req.body;
+  const {rcode6}=req.body;
+  var rcode=rcode1*100000+rcode2*10000+rcode3*1000+rcode4*100+rcode5*10+rcode6*1;
+  if(a!=rcode){
+    req.flash("error","Wrong Code!");
+    console.log(`${a},${rcode},${rcode1},${rcode2},${rcode3},${rcode4},${rcode5},${rcode6}`);
+    res.redirect(`/entercode/${username}`);
+  }
+  else{
+    req.flash("success","Correct Code!");
+    pool.getConnection(function (err, connection) {
+      connection.query(
+        `SELECT * FROM reviewer WHERE username="${username}";`,
+        async (err, data) => {
+          connection.release();
+          if (err) console.log(err);
+          else {
+              console.log("this is correct!");
+              req.session.username = data[0].username;
+              req.session.userid = data[0].reviewer_id;
+              req.session.type = data[0].post;
+              req.flash("success", `Welcome back ${data[0].name}!`);
+              if (data[0].post === "admin") res.redirect("/select");
+              else res.redirect("/article");
+            }
+        }
+      );
+    });
+  }
+});
+
 app.get("/article", requireLoginReviewer, async (req, res) => {
   pool.getConnection(function (err, connection) {
     connection.query(
@@ -123,7 +233,7 @@ app.get("/article", requireLoginReviewer, async (req, res) => {
         connection.release();
         if (err) console.log(err);
         else {
-          res.render("routes/article", { articles , home });
+          res.render("routes/article", { articles });
         }
       }
     );
@@ -145,11 +255,8 @@ app.post(
   requireLoginAdmin,
   async (req, res) => {
     let mm = new Date().toISOString().slice(0, 10).replace("T", " ");
-    const imgSrc = seedPics[Math.floor(Math.random() * 8)];
-    req.body.articleContent = req.body.articleContent.replace(
-      "\r\n",
-      "</br></br>"
-    );
+    const imgSrc = seedPics[Math.floor(Math.random()*8)];
+    req.body.articleContent = req.body.articleContent.replace("\r\n", "</br></br>");
     pool.getConnection(function (err, connection) {
       connection.query(
         `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating,img) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0,"${imgSrc}")`,
@@ -262,34 +369,23 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
         connection.release();
         if (err) console.log(err);
         else {
-          const waitingUpdate =
-            articles[2][0].count > 5
-              ? `UPDATE article set status="waiting";`
-              : ``;
-          const conditional = `WHERE article_id=${id}`;
-          const newRating =
-            ((articles[2][0].count - 1) * articles[2][0].avg_rating +
-              parseInt(req.body.rating)) /
-            articles[2][0].count;
-          console.log(
-            newRating,
-            articles[2][0].count,
-            articles[2][0].avg_rating,
-            req.body.rating
-          );
-          pool.getConnection(function (err, connection) {
-            connection.query(
-              `UPDATE article SET avg_rating=${newRating} ${conditional};${waitingUpdate} ${conditional}`,
-              async (err, data) => {
-                connection.release();
-                if (err) console.log(err);
-              }
-            );
-          });
-          req.flash("success", "Updated review successfully!");
-          res.redirect(`/article`);
-        }
+            const waitingUpdate = (articles[2][0].count > 5) ? `UPDATE article set status="waiting";` : ``;
+            const conditional = `WHERE article_id=${id}`;
+            const newRating =((articles[2][0].count - 1) * articles[2][0].avg_rating + parseInt(req.body.rating))/(articles[2][0].count);
+              console.log(newRating,articles[2][0].count,articles[2][0].avg_rating,req.body.rating);
+              pool.getConnection(function (err, connection) {
+                connection.query(
+                  `UPDATE article SET avg_rating=${newRating} ${conditional};${waitingUpdate} ${conditional}`,
+                  async (err, data) => {
+                    connection.release();
+                    if (err) console.log(err);
+                  }
+                );
+              });
+                req.flash("success","Updated review successfully!");
+                res.redirect(`/article`);
       }
+    }
     );
   });
 });
@@ -304,27 +400,18 @@ app.put("/article/:id/comment/:cid", requireLoginReviewer, async (req, res) => {
         connection.release();
         if (err) console.log(err);
         else {
-          const conditional = `WHERE article_id=${id}`;
-          const newRating =
-            (articles[2][0].avg_rating * articles[2][0].count -
-              articles[0][0].rating +
-              parseInt(rating)) /
-            articles[2][0].count;
-          console.log(
-            newRating,
-            articles[2][0].count,
-            articles[2][0].avg_rating,
-            parseInt(rating)
-          );
-          pool.getConnection(function (err, connection) {
-            connection.query(
-              `UPDATE article SET avg_rating=${newRating} ${conditional};`,
-              async (err, data) => {
-                connection.release();
-                if (err) console.log(err);
-              }
-            );
-          });
+              const conditional = `WHERE article_id=${id}`;
+              const newRating = (articles[2][0].avg_rating*articles[2][0].count  - articles[0][0].rating + parseInt(rating))/articles[2][0].count;
+              console.log(newRating,articles[2][0].count,articles[2][0].avg_rating,parseInt(rating));
+              pool.getConnection(function (err, connection) {
+                connection.query(
+                  `UPDATE article SET avg_rating=${newRating} ${conditional};`,
+                  async (err, data) => {
+                    connection.release();
+                    if (err) console.log(err);
+                  }
+                );
+              });
           req.flash("success", "Updated review successfully!");
           res.redirect(`/article`);
         }
@@ -357,12 +444,10 @@ app.post(
           async (err, articles) => {
             connection.release();
             if (err) {
-              req.flash(
-                "error",
-                "This email already exists, please enter different email"
-              );
+              req.flash("error","This email already exists, please enter different email")
               res.redirect("/reviewer/create");
-            } else {
+            }
+            else {
               req.flash("success", "Created reviewer successfully!");
               res.redirect("/reviewer");
             }
@@ -383,7 +468,7 @@ app.get(
   async (req, res) => {
     pool.getConnection(function (err, connection) {
       connection.query(
-        `SELECT *, DATE_FORMAT(dob, '%d-%m-%Y') as date from reviewer where post <> "admin" `,
+        `SELECT *,DATE_FORMAT(dob, '%d-%m-%Y') AS date from reviewer where post <> "admin" `,
         async (err, reviewers) => {
           connection.release();
           if (err) console.log(err);
@@ -432,12 +517,10 @@ app.post(
         async (err, reviewers) => {
           connection.release();
           if (err) {
-            req.flash(
-              "error",
-              "This email already exists, please enter different email"
-            );
+            req.flash("error","This email already exists, please enter different email")
             res.redirect("/reviewer/${id}/edit");
-          } else {
+          }
+          else {
             req.flash("success", "Updated reviewer details successfully!");
             res.redirect("/reviewer");
           }
@@ -476,13 +559,13 @@ app.get(
   async (req, res) => {
     pool.getConnection(function (err, connection) {
       connection.query(
-        `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS edited_date, MONTH(upload_date) as month FROM article WHERE status="waiting" ORDER BY avg_rating DESC`,
+        `SELECT * FROM article WHERE status="waiting" ORDER BY avg_rating DESC`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);
           else {
             console.log(articles);
-            res.render("routes/select", { articles, home });
+            res.render("routes/select", { articles });
           }
         }
       );
@@ -490,53 +573,47 @@ app.get(
   }
 );
 
-app.get(
-  "/select/:id/show",
-  requireLoginReviewer,
-  requireLoginAdmin,
-  async (req, res) => {
-    const { id } = req.params;
-    pool.getConnection(function (err, connection) {
-      connection.query(
-        `SELECT * from article where article_id=${id}; SELECT *, reviewer.username, YEAR(reviewer.dob) as year from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id; SELECT AVG(comments.rating) AS avg FROM comments, article where article.article_id=comments.article_id AND article.article_id=${id};`,
-        async (err, data) => {
-          connection.release();
-          if (err) console.log(err);
-          else {
-            //console.log(data);
-            comments = data[1];
-            avg = data[2][0];
-            data = data[0][0];
-            console.log(data, comments, avg);
-            res.render("routes/admin_show", { data, comments, avg });
-          }
+app.get("/select/:id/show", requireLoginReviewer, async (req, res) => {
+  const { id } = req.params;
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `SELECT * from article where article_id=${id}; SELECT *, reviewer.username from comments,reviewer where article_id=${id} and reviewer.reviewer_id=comments.reviewer_id; SELECT AVG(comments.rating) AS avg FROM comments, article where article.article_id=comments.article_id AND article.article_id=${id};`,
+      async (err, data) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          //console.log(data);
+          comments = data[1];
+          avg = data[2][0];
+          data = data[0][0];
+          console.log(data, comments, avg);
+          res.render("routes/admin_show", { data, comments, avg });
         }
-      );
-    });
-  }
-);
+      }
+    );
+  });
+});
 
-app.post(
-  "/select/:id",
-  requireLoginReviewer,
-  requireLoginAdmin,
-  async (req, res) => {
-    const { id } = req.params;
-    pool.getConnection(function (err, connection) {
-      connection.query(
-        `UPDATE article set status="rated" WHERE article_id=${id};`,
-        async (err, articles) => {
-          connection.release();
-          if (err) console.log(err);
-          else {
-            req.flash("success", "Selected article successfully!");
-            res.redirect("/select");
-          }
+app.post("/select/:id", async (req, res) => {
+  const { id } = req.params;
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `UPDATE article set status="rated" WHERE article_id=${id};`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          req.flash("success", "Selected article successfully!");
+          res.redirect("/select");
         }
-      );
-    });
-  }
-);
+      }
+    );
+  });
+});
+
+app.get('/register', async(req,res)=> {
+  res.render("routes/sign_up.ejs");
+})
 
 app.get("/", async (req, res) => {
   pool.getConnection(function (err, connection) {

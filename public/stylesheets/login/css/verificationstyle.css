@@ -1,0 +1,184 @@
+body {
+	background: url("../images/bg.jpg") no-repeat center center fixed;
+	background-size: cover;
+	font-size: 16px;
+	font-family: 'Lato', sans-serif;
+	font-weight: 300;
+	margin: 0;
+	color: rgb(253, 253, 253);
+}
+
+
+.loginbtn {
+    display: inline-block;
+    padding: 8px 17px;
+    font-size: 22px;
+    cursor:pointer;
+    text-align: center;
+    text-decoration: none;
+    
+    outline: none;
+    color: black;
+    background-color: rgba(255, 255, 255,0.2);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px rgb(0, 0, 0);
+    transition: all 0.3s;
+  }
+ 
+  .loginbtn span{
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.3s;
+}
+
+.loginbtn span:after {
+    content: '\00bb';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -10px;
+    transition: 0.3s;
+  }
+
+  .loginbtn:hover span {
+    padding-right: 17px;
+  }
+  
+  .loginbtn:hover span:after {
+    opacity: 1;
+    right: 0;
+  }
+
+  .loginbtn:hover {
+    background-color: rgb(41, 202, 38);
+}
+  
+.loginbtn:active {
+    background-color: rgb(49, 202, 38);
+    box-shadow: 0 5px rgb(0, 0, 0);
+    transform: translateY(4px);
+}
+
+input{
+    
+    background: rgba(255, 255, 255,0.2);
+     
+    font-size: medium;
+    color: white;
+  
+  }
+  
+  input:hover{
+      background: rgba(255, 255, 255,0);
+  
+      border-color: 3 px solid white; 
+      
+  }
+  input:focus{
+      background: rgba(255, 255, 255,0);
+  }
+  
+  .form-ctl:hover{
+      border-color: 3 px solid white; 
+  }
+  
+  
+  
+  .form-ctl{
+      border-radius: 30px;
+      width:100%;
+      position: relative;
+      /* border: 0px;   */
+      padding:12px;
+      border: 5 px solid white; 
+  }
+  
+  .checkbox{
+      background:rgba(255, 255, 255,0.4)
+  }
+  
+  ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: white;
+      opacity: 1; /* Firefox */
+    }
+    
+    :-ms-input-placeholder { /* Internet Explorer 10-11 */
+      color: white;
+    }
+    
+    ::-ms-input-placeholder { /* Microsoft Edge */
+      color: white;
+    }
+
+.otc {
+	position: relative;
+	width: 320px;
+	margin: 0 auto;
+}
+
+.otc fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+.otc fieldset div {
+	display: flex;
+	align-items: center;
+}
+
+.otc legend {
+	margin: 0 auto 1em;
+	color: #ffffff;
+}
+
+input[type="number"] {
+	width: .82em;
+	line-height: 1;
+	margin: .1em;
+	padding: 8px 0 4px;
+	font-size: 2.65em;
+	text-align: center;
+	appearance: textfield;
+	-webkit-appearance: textfield;
+	border: 2px solid #BBBBFF;
+	color: rgb(255, 255, 255);
+	border-radius: 4px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 2 group of 3 items */
+input[type="number"]:nth-child(n+4) {
+	order: 2;
+}
+.otc div::before {
+	content: '';
+	height: 2px;
+	width: 24px;
+	margin: 0 .25em;
+	order: 1;
+	background: #BBBBFF;
+}
+
+/* From: https://gist.github.com/ffoodd/000b59f431e3e64e4ce1a24d5bb36034 */
+.otc label {
+	border: 0 !important;
+	clip: rect(1px, 1px, 1px, 1px) !important;
+	-webkit-clip-path: inset(50%) !important;
+	clip-path: inset(50%) !important;
+	height: 1px !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	position: absolute !important;
+	width: 1px !important;
+	white-space: nowrap !important;
+}
+
