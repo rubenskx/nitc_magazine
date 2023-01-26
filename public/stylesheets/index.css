@@ -179,7 +179,11 @@ body {
 
 
 
-
+@media (min-width:800px) {
+    .img_margin{
+        margin-left: 5%;
+    }
+}
 .card{
     border-radius: 25px;
 }
@@ -234,4 +238,10 @@ body {
     position: relative;
     left: -10px;
     content: "✖";
+  }
+
+  .footer-icons{
+    height:40px;
+    width: 40px;
+    color:white;
   }
