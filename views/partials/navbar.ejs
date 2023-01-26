@@ -1,22 +1,115 @@
-<nav class="navbar navbar-expand-xl  bg-body-tertiary bg-dark" data-bs-theme="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Lexend&display=swap"
+  rel="stylesheet"
+/>
+<nav class="navbar navbar-expand-xl sticky-top" data-bs-theme="dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/This_is_the_logo_of_NIT_Calicut.svg/800px-This_is_the_logo_of_NIT_Calicut.svg.png" class="logo" alt="nit logo"/>Magazine </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <a class="navbar-brand" href="#" style="color: black">
+      <img
+        src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/This_is_the_logo_of_NIT_Calicut.svg/800px-This_is_the_logo_of_NIT_Calicut.svg.png"
+        class="logo"
+        alt="nit logo"
+      />Magazine
+    </a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav navstyle">
-        <a class="nav-link active" aria-current="page" href="#">Home</a>
-        <% if (typeof username!== 'undefined') {%> 
-          <% if ( typeof admin !== 'undefined' && admin === "admin") {%>
-              <a class="nav-link" aria-current="page" href="/reviewer">Reviewers</a>
-              <a class="nav-link" aria-current="page" href="/article/create">Add Article</a>
-              <a class="nav-link" aria-current="page" href="/reviewer/create">Add Reviewer</a>
-            <% } %>  
-              <form class="d-flex" action="/logout" method="POST">
-                <button class="btn btn-outline-success" type="submit">Logout</button>
-              </form>
+        <% if ( typeof admin !== 'undefined' && admin === "viewer") {%>
+        <div class="search-wrapper mt-2">
+          <div class="input-holder">
+             <form action="/search" method="GET">
+            <input
+              type="text"
+              name="search"
+              class="search-input"
+              placeholder="Type to search"
+            />
+            <button class="search-icon" type="submit" onclick="searchToggle(this, event);">
+              <span></span>
+            </button>
+            </form>
+          </div>
+          <span class="close" onclick="searchToggle(this, event);"></span>
+        </div>
         <% } %> 
+        <% if ( typeof admin !== 'undefined' && admin === "admin") {%>
+        <div class="links" id="home">
+          <a
+            class="nav-link"
+            aria-current="page"
+            href="/select"
+            style="color: black"
+            >Home</a
+          >
+        </div>
+        <div class="links" id="reviewer_page">
+          <a
+            class="nav-link ms-3"
+            aria-current="page"
+            href="/reviewer"
+            style="color: black"
+            >Reviewers</a
+          >
+        </div>
+        <div class="links" id="add_article">
+          <a
+            class="nav-link ms-3"
+            aria-current="page"
+            href="/article/create"
+            style="color: black"
+            >Add Article</a
+          >
+        </div>
+        <div class="links" id="add_reviewer">
+          <a
+            class="nav-link ms-3"
+            aria-current="page"
+            href="/reviewer/create"
+            style="color: black"
+            >Add Reviewer</a
+          >
+        </div>
+        <form class="d-flex" id="login-form" action="/logout" method="POST">
+          <button
+            class="btn btn-outline-success btn-btn"
+            type="submit"
+            id="log"
+          >
+            Logout
+          </button>
+        </form>
+        <% } else if( typeof admin !== 'undefined' && admin === "reviewer") {%>
+        <div class="links">
+          <a
+            class="nav-link active"
+            aria-current="page"
+            href="/article"
+            style="color: black"
+            >Home</a
+          >
+        </div>
+        <form class="d-flex" id="login-form" action="/logout" method="POST">
+          <button
+            class="btn btn-outline-success btn-btn"
+            type="submit"
+            id="log"
+          >
+            Logout
+          </button>
+        </form>
+        <% } %>
       </div>
     </div>
   </div>

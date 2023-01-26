@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="/stylesheets/stars.css" />
 <h1 style="text-align: center"><%= data.title %></h1>
 <p style="text-align: right">Written By -<b><%= data.author_name %></b></p>
+<img src="<%= data.img %>" class="img_margin img-fluid" alt="article_img"/> 
 <hr />
 <p class="lead"><%= data.content %></p>
 <hr />
@@ -10,23 +11,46 @@
         <p style="color:red;">There are no comments for this post!</p>
     <% } else { %>  
 <% for (comment of comments) {%>
-    <div class="card mb-3">
-        <div class="card-body">
-            <label class="form-label" for="content"><b><%= comment.name %> </b> says</label>
-            <textarea
-            class="form-control"
-            name="content"
-            id="body"
-            cols="30"
-            rows="3"
-            ><%= comment.content  %></textarea>
-        <p class="starability-result" data-rating="<%= comment.rating %>">
+    <div class="mb-3 comments">
+            <img class="profile" src="<%= comment.img %>" /><label class="ms-2 form-label" for="content"  data-bs-toggle="modal" data-bs-target="#exampleModal<%=comment.comment_id %>" style="cursor:pointer;"><b><%= comment.name %> </b> says</label>
+            
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal<%=comment.comment_id %>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"  style="margin-left: 25%;"id="exampleModalLabel">Reviewer Information</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+            <img src="<%= comment.img %>"  class="overlay_profile mb-5" style="margin-left:25%;"/>
+            <div style="margin-left:43%;"><b> <%= comment.name %>  </b></div>
+            <div style="margin-left:35%;"><b> <%= comment.username %>  </b></div>
+             <div style="margin-left:40%;"><b> <%= comment.year - 2023 %> years old. </b></div>
+         
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-btn" id="log" data-bs-dismiss="modal">Close</button>
+        <% if (typeof username!== 'undefined' && typeof admin !== 'undefined' && admin === "admin") %> 
+        <a href="/reviewer/<%= comment.reviewer_id %>/edit" id="edit" class="btn-btn "
+      >Edit</a
+    >
+      </div>
+    </div>
+  </div>
+</div>
+            <p style="padding-left: 70px;"><%= comment.content  %></p>
+            <div>
+                <p class="starability-result ms-auto" data-rating="<%= comment.rating %>"></p>
+            </div>
         </p>
-        </div>
   </div>
 <% } %> 
-<p class="ms-auto">Average rating is: <b><%= avg.avg %></b></p>
-        <form class="d-flex" action="/select/<%= data.article_id %>" method="POST">
-            <button class="btn btn-primary" type="submit">Select</button>
+<p class="ms-auto">Average rating is: <b><%= data.avg_rating %></b></p>
+<% if (typeof(admin)!== 'undefined' && admin === 'admin') {%> 
+        <form class="d-flex mb-5" action="/select/<%= data.article_id %>" method="POST">
+            <button class="btn-btn" id="select" type="submit">Select</button>
         </form>
+        <% } %> 
 <% } %> 
