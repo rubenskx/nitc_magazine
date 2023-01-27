@@ -14,8 +14,10 @@
     </div>
 
     <br>
-    <button type="submit" class="btn btn-primary">Edit</button>
+    <div class="row">
+    <button type="submit" class="btn-btn col-6" id="edit">Edit</button>
+    <form action="/article/<%=article.article_id%>/delete" method="POST">
+    <button type="submit" class="btn-btn col-6" id="log">Delete</button>
+    </form>
+    </div>
   </form>
-  <form action="/article/<%=article.article_id%>/delete" method="POST">
-    <button type="submit" class="btn btn-danger">Delete</button>
-</form>

@@ -43,6 +43,15 @@
           </div>
           <span class="close" onclick="searchToggle(this, event);"></span>
         </div>
+        <form class="d-flex ms-auto" action="/login" method="GET">
+          <button
+            class="btn-btn"
+            type="submit"
+            id="edit"
+          >
+            Login
+          </button>
+        </form>       
         <% } %> 
         <% if ( typeof admin !== 'undefined' && admin === "admin") {%>
         <div class="links" id="home">
