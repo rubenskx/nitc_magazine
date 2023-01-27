@@ -159,8 +159,24 @@ app.post("/forgotpassword",async(req,res)=>{
             var mailOptions = {
               from: 'abhay_b200732cs@nitc.ac.in',
               to: `${username}`,
-              subject: 'Sending Email using Node.js',
-              text: `Hello ${username}, your code is ${a}`,
+              subject: 'OTP verification for Log In',
+              text: ``,
+              html:`<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+              <div style="margin:50px auto;width:70%;padding:20px 0">
+                <div style="border-bottom:1px solid #eee">
+                  
+                <p style="font-size:1.1em">Hello ${username}! Greetings from NITC Magazine,</p>
+                <p> Use the following OTP to complete your log in process. Please do not refresh or press back on the OTP validation page in the website</p>
+                <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${a}</h2>
+                <p style="font-size:0.9em;">Regards,<br />NITC Magazine</p>
+                <hr style="border:none;border-top:1px solid #eee" />
+                <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+                  <p>NIT Calicut</p>
+                  <p>Kattangal, Mavoor Road</p>
+                  <p>Kerala, India</p>
+                </div>
+              </div>
+            </div>`
               // html: '<h1>Hi Smartherd</h1><p>Your Messsage</p>'        
             };
             
