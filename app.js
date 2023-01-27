@@ -259,7 +259,7 @@ app.post(
     req.body.articleContent = req.body.articleContent.replace("\r\n", "</br></br>");
     pool.getConnection(function (err, connection) {
       connection.query(
-        `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating,img) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0,"${imgSrc}")`,
+        `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating,img) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0,"${$req.body.articleImg}")`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);
@@ -434,13 +434,13 @@ app.post(
   requireLoginReviewer,
   requireLoginAdmin,
   async (req, res) => {
-    const { rName, rUsername, rPassword, rDob } = req.body;
+    const { rName, rUsername, rPassword, rDob, rImg } = req.body;
     if (rUsername.includes("@nitc.ac.in")) {
       const hash = await bcrypt.hash(rPassword, 10);
       console.log(hash);
       pool.getConnection(function (err, connection) {
         connection.query(
-          `INSERT INTO reviewer(username,login_password,name,dob,post) VALUES ("${rUsername}","${hash}","${rName}","${rDob}","reviewer")`,
+          `INSERT INTO reviewer(username,login_password,name,dob,post,img) VALUES ("${rUsername}","${hash}","${rName}","${rDob}","reviewer","${rImg}")`,
           async (err, articles) => {
             connection.release();
             if (err) {
@@ -626,7 +626,7 @@ app.get("/", async (req, res) => {
           console.log(articles);
           req.session.type = "viewer";
           req.session.username = "random";
-          res.render("routes/select", { articles , home});
+          res.render("routes/home", { articles , home});
         }
       }
     );
