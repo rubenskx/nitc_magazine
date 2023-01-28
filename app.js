@@ -64,6 +64,10 @@ const requireLoginAdmin = (req, res, next) => {
   }
 };
 
+app.get("/forgotpassword", async (req, res) => {
+  res.render("routes/auth/forgotpassword");
+});
+
 app.get("/login", async (req, res) => {
   req.session.user_id = null;
   req.session.username = null;
@@ -123,9 +127,6 @@ app.get("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-app.get("/forgotpassword", async (req, res) => {
-  res.render("routes/auth/forgotpassword");
-});
 
 app.post("/forgotpassword", async (req, res) => {
   const { username } = req.body;
