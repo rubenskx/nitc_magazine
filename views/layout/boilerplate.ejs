@@ -35,25 +35,35 @@
       const addReviewer = document.querySelector("#add_reviewer");
       const addArticle = document.querySelector("#add_article");
       const reviewer = document.querySelector("#reviewer_page");
+      const newReview = document.querySelector("#new");
+      const editReview = document.querySelector("#edit_review");
       const style = "3px solid black";
 
-      console.log(window.location.href);
+      //console.log(window.location.href);
 
       if (window.location.href.includes("select")) {
         console.log("home!");
         home.style.borderBottom = style;
       }
 
-      if (window.location.href.includes("reviewer/create")) {
+      else if (window.location.href.includes("reviewer/create")) {
         addReviewer.style.borderBottom = style;
       }
 
-      if (window.location.href.includes("article/create")) {
+      else if (window.location.href.includes("article/create")) {
           addArticle.style.borderBottom = style;
       }
 
-      if (window.location.href.includes("reviewer") && !window.location.href.includes("reviewer/create")) {
+      else if (window.location.href.includes("reviewer") && !window.location.href.includes("reviewer/create")) {
         reviewer.style.borderBottom = style;
+      }
+
+      else if (window.location.href.includes("article/edit")) {
+          editReview.style.borderBottom = style;
+      }
+
+      else if (window.location.href.includes("article")) {
+          newReview.style.borderBottom = style;
       }
 
       function searchToggle(obj, evt){

@@ -26,4 +26,9 @@
     </div>
   </div>
 </div>
-    <% } %>  
+    <% } %>
+    <% if(articles.length === 0) {%>
+      <div class="vh-100"> 
+    <p class="lead" style="color:red;text-align:center;">There are no articles left to review!</p>
+      </div>  
+      <% } %>  
