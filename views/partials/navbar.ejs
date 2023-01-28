@@ -43,6 +43,15 @@
           </div>
           <span class="close" onclick="searchToggle(this, event);"></span>
         </div>
+        <form class="d-flex ms-auto" action="/login" method="GET">
+          <button
+            class="btn-btn"
+            type="submit"
+            id="edit"
+          >
+            Login
+          </button>
+        </form>       
         <% } %> 
         <% if ( typeof admin !== 'undefined' && admin === "admin") {%>
         <div class="links" id="home">
@@ -82,32 +91,39 @@
           >
         </div>
         <form class="d-flex" id="login-form" action="/logout" method="POST">
-          <button
-            class="btn btn-outline-success btn-btn"
-            type="submit"
-            id="log"
-          >
-            Logout
-          </button>
+<div class="navigation">
+        <a class="button" href="/logout">
+          <img src="https://static.vecteezy.com/system/resources/previews/000/575/370/original/vector-logout-sign-icon.jpg">
+        <div class="logout">LOGOUT</div>
+        </a>
+      </div>
         </form>
         <% } else if( typeof admin !== 'undefined' && admin === "reviewer") {%>
-        <div class="links">
+        <div class="links" id="new" style="margin-left:15%;">
           <a
             class="nav-link active"
             aria-current="page"
             href="/article"
             style="color: black"
-            >Home</a
+            >New</a
+          >
+        </div>
+        <div class="ms-5 links" id="edit_review">
+          <a
+            class="nav-link active"
+            aria-current="page"
+            href="/article/edit"
+            style="color: black"
+            >Edit</a
           >
         </div>
         <form class="d-flex" id="login-form" action="/logout" method="POST">
-          <button
-            class="btn btn-outline-success btn-btn"
-            type="submit"
-            id="log"
-          >
-            Logout
-          </button>
+<div class="navigation">
+	<a class="button" href="/logout">
+  	<img src="https://static.vecteezy.com/system/resources/previews/000/575/370/original/vector-logout-sign-icon.jpg">
+  <div class="logout">LOGOUT</div>
+	</a>
+</div>
         </form>
         <% } %>
       </div>

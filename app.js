@@ -121,7 +121,7 @@ app.post("/login", async (req, res) => {
   });
 });
 
-app.post("/logout", (req, res) => {
+app.get("/logout", (req, res) => {
   req.session.user_id = null;
   req.session.username = null;
   req.session.type = null;
@@ -228,11 +228,27 @@ app.post("/entercode/:username",async(req,res)=>{
 app.get("/article", requireLoginReviewer, async (req, res) => {
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article where status<>"rated"`,
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article where article.status<>"rated" AND NOT EXISTS(SELECT * FROM comments WHERE comments.article_id=article.article_id AND comments.reviewer_id=${req.session.userid});`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
         else {
+          res.render("routes/article", { articles  });
+        }
+      }
+    );
+  });
+});
+
+app.get("/article/edit", requireLoginReviewer, async (req, res) => {
+  pool.getConnection(function (err, connection) {
+    connection.query(
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article, comments where article.status<>"rated" AND article.article_id=comments.article_id and comments.reviewer_id=${req.session.userid};`,
+      async (err, articles) => {
+        connection.release();
+        if (err) console.log(err);
+        else {
+          console.log(articles);
           res.render("routes/article", { articles });
         }
       }
@@ -259,7 +275,7 @@ app.post(
     req.body.articleContent = req.body.articleContent.replace("\r\n", "</br></br>");
     pool.getConnection(function (err, connection) {
       connection.query(
-        `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating,img) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0,"${imgSrc}")`,
+        `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating,img) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0,"${$req.body.articleImg}")`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);
@@ -364,7 +380,7 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
   const date = new Date().toISOString().slice(0, 10).replace("T", " ");
   pool.getConnection(function (err, connection) {
     connection.query(
-      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid}); UPDATE article SET count=count+1; SELECT * FROM article`,
+      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid}); UPDATE article SET count=count+1 where article_id=${id}; SELECT * FROM article`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
@@ -402,7 +418,13 @@ app.put("/article/:id/comment/:cid", requireLoginReviewer, async (req, res) => {
         else {
               const conditional = `WHERE article_id=${id}`;
               const newRating = (articles[2][0].avg_rating*articles[2][0].count  - articles[0][0].rating + parseInt(rating))/articles[2][0].count;
-              console.log(newRating,articles[2][0].count,articles[2][0].avg_rating,parseInt(rating));
+              console.log(
+                newRating,
+                articles[2][0].count,
+                articles[2][0].avg_rating,
+                parseInt(rating),
+                articles[0][0].rating,
+              );
               pool.getConnection(function (err, connection) {
                 connection.query(
                   `UPDATE article SET avg_rating=${newRating} ${conditional};`,
@@ -434,13 +456,13 @@ app.post(
   requireLoginReviewer,
   requireLoginAdmin,
   async (req, res) => {
-    const { rName, rUsername, rPassword, rDob } = req.body;
+    const { rName, rUsername, rPassword, rDob, rImg } = req.body;
     if (rUsername.includes("@nitc.ac.in")) {
       const hash = await bcrypt.hash(rPassword, 10);
       console.log(hash);
       pool.getConnection(function (err, connection) {
         connection.query(
-          `INSERT INTO reviewer(username,login_password,name,dob,post) VALUES ("${rUsername}","${hash}","${rName}","${rDob}","reviewer")`,
+          `INSERT INTO reviewer(username,login_password,name,dob,post,img) VALUES ("${rUsername}","${hash}","${rName}","${rDob}","reviewer","${rImg}")`,
           async (err, articles) => {
             connection.release();
             if (err) {
@@ -626,7 +648,7 @@ app.get("/", async (req, res) => {
           console.log(articles);
           req.session.type = "viewer";
           req.session.username = "random";
-          res.render("routes/select", { articles , home});
+          res.render("routes/home", { articles , home});
         }
       }
     );

@@ -8,18 +8,27 @@
     <div class="col-sm-6">
       <img src="<%= article.img %>" class="img-fluid" alt="article_img"/> 
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6" style="margin-top:100px;">
     <h5 class="card-title"><%= article.title %> </h5>
     <p class=""><b><%= article.author_name %> </b></p>
-    <!-- <p class="card-text"><%= article.content %> </p> -->
+    <p class="card-text"><%= article.content.substring(0, 150) %>... </p>
     <p class="card-text">Posted on : <%= article.date %> </p>
     <% if (typeof(admin) !== 'undefined' && admin === 'reviewer') {%> 
-    <a href="/article/<%= article.article_id %>/show" class="btn-btn" id="show">Read</a>
+    <div class="d-grid gap-2">
+        <a href="/article/<%= article.article_id %>/show" class="btn-btn" id="show">Read</a>
+    </div>
     <% }%>
     <% if (typeof(admin) !== 'undefined' && admin === 'viewer') {%> 
-       <a href="/<%= article.article_id %>/show" class="btn-btn" id="show">Read</a>
+         <div class="d-grid gap-2">
+              <a href="/<%= article.article_id %>/show" class="btn-btn" id="show">Read</a>
+         </div>
       <% } %>  
     </div>
   </div>
 </div>
-    <% } %>  
+    <% } %>
+    <% if(articles.length === 0) {%>
+      <div class="vh-100"> 
+    <p class="lead" style="color:red;text-align:center;">There are no articles left to review!</p>
+      </div>  
+      <% } %>  
