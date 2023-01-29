@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/stylesheets/stars.css" />
 <h1 style="text-align: center"><%= data.title %></h1>
 <p style="text-align: right">Written By -<b><%= data.author_name %></b></p>
-<img src="<%= data.img %>" class="img_margin img-fluid" alt="article_img"/> 
+<img src="<%= data.img %>" class="img_margin img-fluid show_img" alt="article_img"/> 
 <hr />
 <p class="lead"><%= data.content %></p>
 <hr />
@@ -27,7 +27,7 @@
             <img src="<%= comment.img %>"  class="overlay_profile mb-5" style="margin-left:25%;"/>
             <div style="margin-left:43%;"><b> <%= comment.name %>  </b></div>
             <div style="margin-left:35%;"><b> <%= comment.username %>  </b></div>
-             <div style="margin-left:40%;"><b> <%= comment.year - 2023 %> years old. </b></div>
+             <div style="margin-left:40%;"><b> <%= 2023 - comment.year %> years old. </b></div>
          
       </div>
       <div class="modal-footer">

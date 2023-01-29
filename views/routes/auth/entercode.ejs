@@ -29,17 +29,18 @@
             </div> -->
 
 <link rel="stylesheet" href="/stylesheets/login/css/verificationstyle.css" />
-            
-    <form action="/entercode/<%= username %>" method="POST" class="vh-100" style="color:black;margin-left: 40%;">
+<div class="mx-auto my-auto vh-100">
+	<div class="d-flex justify-content-center">
+    <form action="/entercode/<%= username %>" method="POST" class="vh-100 mt-5" style="color:black;">
         <!-- <h5 class="text-center mb-4" style="font-size:xxx-large;text-shadow: 2px 2px black;">Forgot your Password?</h5> -->
         <fieldset>
             <legend>Validation Code</legend>
-            <label for="otc-1">Number 1</label>
+            <!-- <label for="otc-1">Number 1</label>
             <label for="otc-2">Number 2</label>
             <label for="otc-3">Number 3</label>
             <label for="otc-4">Number 4</label>
             <label for="otc-5">Number 5</label>
-            <label for="otc-6">Number 6</label>
+            <label for="otc-6">Number 6</label> -->
     
             <!-- https://developer.apple.com/documentation/security/password_autofill/enabling_password_autofill_on_an_html_input_element -->
             <div>
@@ -57,7 +58,8 @@
             <button type="submit" class="loginbtn" ><span>Verify</span></button>
             </div>
     </form>
-                        
+	</div>
+</div>           
 <script>
     let in1 = document.getElementById('otc-1'),
     ins = document.querySelectorAll('input[type="number"]'),

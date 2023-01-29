@@ -322,3 +322,11 @@ body {
     width: 80%;
     color: white;
 }
+
+.modal-content{
+    border-radius: 25px;
+}
+
+.show_img{
+    border-radius: 25px;
+}

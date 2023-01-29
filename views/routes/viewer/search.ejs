@@ -5,15 +5,15 @@
 <% for (let i = 0; i < articles.length; i+=2) { %>
     <div class="row mt-5">
       <div class="col-sm-6">
-      <img src="<%= articles[i].img %>" style="width:100%;"alt="article_img"/> 
-         <h3 class="display_title"><b><%= articles[i].title %></b></h3>
+      <img src="<%= articles[i].img %>" style="width:100%;"alt="article_img" class="show_img"/> 
+          <a href="/<%= articles[i].article_id%>/show" style="text-decoration:none; color:black;"><h3 class="display_title"><b><%= articles[i].title %></b></h3></a>
          <p class><%= articles[i].content.substring(0,80) %>...</p>
          <p><%= articles[i].author_name %></p>
     </div>
       <div class="col-sm-6">
         <% if(i + 1 <articles.length) {%> 
-      <img src="<%= articles[i+1].img %>" style="width:100%;"alt="article_img"/> 
-         <h3 class="display_title"><b><%= articles[i+1].title %></b></h3>
+      <img src="<%= articles[i+1].img %>" style="width:100%;"alt="article_img" class="show_img"/> 
+          <a href="/<%= articles[i+1].article_id%>/show" style="text-decoration:none; color:black;"><h3 class="display_title"><b><%= articles[i+1].title %></b></h3></a>
          <p class><%= articles[i+1].content.substring(0,80) %>...</p>
          <p><%= articles[i+1].author_name %></p>
          <% } %> 
