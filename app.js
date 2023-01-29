@@ -12,6 +12,7 @@ const jquery = require("jquery");
 const router = express.Router();
 const nodemailer = require("nodemailer");
 const seedPics = require("./utils/picHelpers");
+const ExpressError = require("./utils/ExpressError");
 const Math = require("mathjs");
 
 const home = "home";
@@ -721,6 +722,21 @@ app.get("/:id/show", async (req, res) => {
   });
 });
 
+app.all("*", (req, res, next) => {
+  req.session.user_id = null;
+  req.session.username = null;
+  req.session.type = null;
+  next(new ExpressError("Page not found!", 404));
+});
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500 } = err;
+  if (!err.message) err.message = "something is wrong";
+  console.log(err);
+  res.status(statusCode).render("routes/error/error", { err });
+});
+
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
 });
+
