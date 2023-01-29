@@ -48,9 +48,13 @@
   </div>
 <% } %> 
 <p class="ms-auto">Average rating is: <b><%= data.avg_rating %></b></p>
-<% if (typeof(admin)!== 'undefined' && admin === 'admin') {%> 
-        <form class="d-flex mb-5" action="/select/<%= data.article_id %>" method="POST">
-            <button class="btn-btn" id="select" type="submit">Select</button>
+<% if (typeof(admin)!== 'undefined' && admin === 'admin') {%>
+
+        <form class="mb-5" action="/select/<%= data.article_id %>" method="POST">
+            <div class="d-grid gap-2">
+              <button class="btn-btn" id="select" type="submit">Select</button>
+            </div>
         </form>
+
         <% } %> 
 <% } %> 

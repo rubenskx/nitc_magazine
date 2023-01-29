@@ -235,7 +235,7 @@ app.post("/entercode/:username", async (req, res) => {
 app.get("/article", requireLoginReviewer, async (req, res) => {
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article where article.status<>"rated" AND NOT EXISTS(SELECT * FROM comments WHERE comments.article_id=article.article_id AND comments.reviewer_id=${req.session.userid});`,
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS date from article where article.status = "unrated" AND NOT EXISTS(SELECT * FROM comments WHERE comments.article_id=article.article_id AND comments.reviewer_id=${req.session.userid});`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
@@ -398,8 +398,8 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
         if (err) console.log(err);
         else {
           const waitingUpdate =
-            articles[2][0].count > 5
-              ? `UPDATE article set status="waiting";`
+            articles[2][0].count >= 5
+              ? `UPDATE article set status="waiting" where article.article_id=${id};`
               : ``;
           const conditional = `WHERE article_id=${id}`;
           const newRating =
@@ -560,11 +560,11 @@ app.post(
   requireLoginAdmin,
   async (req, res) => {
     const { id } = req.params;
-    const { rName, rUsername, rDob, rPassword } = req.body;
+    const { rName, rUsername, rDob, rPassword, rImg } = req.body;
     const hash = await bcrypt.hash(rPassword, 12);
     pool.getConnection(function (err, connection) {
       connection.query(
-        `UPDATE reviewer SET username="${rUsername}",login_password="${hash}",dob="${rDob}",name="${rName}" WHERE reviewer_id=${id}`,
+        `UPDATE reviewer SET username="${rUsername}",login_password="${hash}",dob="${rDob}",name="${rName}", img="${rImg}" WHERE reviewer_id=${id}`,
         async (err, reviewers) => {
           connection.release();
           if (err) {
