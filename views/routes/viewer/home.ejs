@@ -6,7 +6,7 @@
 <h1>What's New</h1>
 <%  } %>   
 
-
+<% if (articles.length !== 0) {%> 
 <% for (let i = 0; i < articles.length; i+=2) { %>
     <div class="row mt-5">
       <div class="col-sm-6">
@@ -25,3 +25,6 @@
     </div>
     </div>
 <% } %>
+<% } else {%>
+      <p style="color:red;">There are no articles currently left to show!</p>
+  <% } %>  

@@ -128,7 +128,6 @@ app.get("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-
 app.post("/forgotpassword", async (req, res) => {
   const { username } = req.body;
   pool.getConnection(function (err, connection) {
@@ -285,7 +284,7 @@ app.post(
     );
     pool.getConnection(function (err, connection) {
       connection.query(
-        `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating,img) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0,"${$req.body.articleImg}")`,
+        `INSERT INTO article(content,upload_date,author_name,title,status,avg_rating,img) VALUES ("${req.body.articleContent}","${mm}","${req.body.articleAuthor}","${req.body.articleHeading}","unrated",0,"${req.body.articleImg}")`,
         async (err, articles) => {
           connection.release();
           if (err) console.log(err);
@@ -392,15 +391,19 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
   const date = new Date().toISOString().slice(0, 10).replace("T", " ");
   pool.getConnection(function (err, connection) {
     connection.query(
-      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid}); UPDATE article SET count=count+1 where article_id=${id}; SELECT * FROM article`,
+      `INSERT INTO comments(content,rating,c_date,article_id,reviewer_id) VALUES("${req.body.content}", ${req.body.rating}, ${date}, ${id}, ${req.session.userid}); UPDATE article SET count=count+1 where article_id=${id}; SELECT * FROM article where article_id=${id}`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
         else {
-          const waitingUpdate =
-            articles[2][0].count >= 5
-              ? `UPDATE article set status="waiting" where article.article_id=${id};`
-              : ``;
+           let waitingUpdate = ``
+           console.log(articles[2][0].count);
+           const articleCount = parseInt(articles[2][0].count);
+           console.log("articleCOunt",articleCount);
+          if(articleCount >= 5){
+           waitingUpdate = `UPDATE article set status="waiting" where article.article_id=${id};`
+          }
+
           const conditional = `WHERE article_id=${id}`;
           const newRating =
             ((articles[2][0].count - 1) * articles[2][0].avg_rating +
@@ -414,7 +417,7 @@ app.post("/article/:id/comment", requireLoginReviewer, async (req, res) => {
           );
           pool.getConnection(function (err, connection) {
             connection.query(
-              `UPDATE article SET avg_rating=${newRating} ${conditional};${waitingUpdate} ${conditional}`,
+              `UPDATE article SET avg_rating=${newRating} ${conditional};${waitingUpdate}`,
               async (err, data) => {
                 connection.release();
                 if (err) console.log(err);
@@ -667,7 +670,7 @@ app.post("/select/:id", async (req, res) => {
 app.get("/", async (req, res) => {
   pool.getConnection(function (err, connection) {
     connection.query(
-      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS edited_date, MONTH(upload_date) as month FROM article WHERE status="waiting" ORDER BY avg_rating DESC`,
+      `SELECT *, DATE_FORMAT(upload_date, '%d-%m-%Y') AS edited_date, MONTH(upload_date) as month FROM article WHERE status="rated" ORDER BY avg_rating DESC`,
       async (err, articles) => {
         connection.release();
         if (err) console.log(err);
@@ -739,4 +742,3 @@ app.use((err, req, res, next) => {
 app.listen(3000, () => {
   console.log("LISTENING ON PORT 3000!");
 });
-

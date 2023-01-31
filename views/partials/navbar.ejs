@@ -4,10 +4,10 @@
   href="https://fonts.googleapis.com/css2?family=Lexend&display=swap"
   rel="stylesheet"
 />
-<nav class="navbar navbar-expand-xl navbar-light bg-light " data-bs-theme="dark">
+<nav class="navbar navbar-expand-xl navbar-light bg-light" data-bs-theme="dark">
   <div class="container-fluid">
-    <% if(typeof (err) === 'undefined') {%> 
-    <a class="navbar-brand" href="#" style="color: black">
+    <% if(typeof (err) === 'undefined') {%>
+    <a class="navbar-brand" href="/" style="color: black">
       <img
         src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/This_is_the_logo_of_NIT_Calicut.svg/800px-This_is_the_logo_of_NIT_Calicut.svg.png"
         class="logo"
@@ -23,7 +23,7 @@
       />Magazine
     </a>
 
-    <% } %>  
+    <% } %>
     <button
       class="navbar-toggler"
       type="button"
@@ -40,31 +40,28 @@
         <% if ( typeof admin !== 'undefined' && admin === "viewer") {%>
         <div class="search-wrapper mt-2">
           <div class="input-holder">
-             <form action="/search" method="GET">
-            <input
-              type="text"
-              name="search"
-              class="search-input"
-              placeholder="Type to search"
-            />
-            <button class="search-icon" type="submit" onclick="searchToggle(this, event);">
-              <span></span>
-            </button>
+            <form action="/search" method="GET">
+              <input
+                type="text"
+                name="search"
+                class="search-input"
+                placeholder="Type to search"
+              />
+              <button
+                class="search-icon"
+                type="submit"
+                onclick="searchToggle(this, event);"
+              >
+                <span></span>
+              </button>
             </form>
           </div>
           <span class="close" onclick="searchToggle(this, event);"></span>
         </div>
         <form class="d-flex ms-auto" action="/login" method="GET">
-          <button
-            class="btn-btn"
-            type="submit"
-            id="edit"
-          >
-            Login
-          </button>
-        </form>       
-        <% } %> 
-        <% if ( typeof admin !== 'undefined' && admin === "admin") {%>
+          <button class="btn-btn" type="submit" id="edit">Login</button>
+        </form>
+        <% } %> <% if ( typeof admin !== 'undefined' && admin === "admin") {%>
         <div class="links" id="home">
           <a
             class="nav-link"
@@ -102,15 +99,17 @@
           >
         </div>
         <form class="d-flex" id="login-form" action="/logout" method="POST">
-<div class="navigation">
-        <a class="button" href="/logout">
-          <img src="https://static.vecteezy.com/system/resources/previews/000/575/370/original/vector-logout-sign-icon.jpg">
-        <div class="logout">LOGOUT</div>
-        </a>
-      </div>
+          <div class="navigation">
+            <a class="button" href="/logout">
+              <img
+                src="https://static.vecteezy.com/system/resources/previews/000/575/370/original/vector-logout-sign-icon.jpg"
+              />
+              <div class="logout">LOGOUT</div>
+            </a>
+          </div>
         </form>
         <% } else if( typeof admin !== 'undefined' && admin === "reviewer") {%>
-        <div class="links" id="new" style="margin-left:15%;">
+        <div class="links" id="new" style="margin-left: 15%">
           <a
             class="nav-link active"
             aria-current="page"
@@ -129,12 +128,14 @@
           >
         </div>
         <form class="d-flex" id="login-form" action="/logout" method="POST">
-<div class="navigation">
-	<a class="button" href="/logout">
-  	<img src="https://static.vecteezy.com/system/resources/previews/000/575/370/original/vector-logout-sign-icon.jpg">
-  <div class="logout">LOGOUT</div>
-	</a>
-</div>
+          <div class="navigation">
+            <a class="button" href="/logout">
+              <img
+                src="https://static.vecteezy.com/system/resources/previews/000/575/370/original/vector-logout-sign-icon.jpg"
+              />
+              <div class="logout">LOGOUT</div>
+            </a>
+          </div>
         </form>
         <% } %>
       </div>
